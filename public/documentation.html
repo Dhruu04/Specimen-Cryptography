@@ -1,0 +1,2956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Specimen Cryptography Laboratory — Complete Technical Specification & Manual</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #111111;
+      --fg-muted: #555555;
+      --fg-subtle: #777777;
+      --border: #e2e2e2;
+      --border-subtle: #eeeeee;
+      --surface: #fafafa;
+      --surface-hover: #f4f4f4;
+      --code-bg: #f5f5f5;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+      --sidebar-width: 310px;
+      --topbar-height: 48px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      font-size: 14.5px;
+      line-height: 1.65;
+      background-color: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-sans);
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      scroll-behavior: smooth;
+    }
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      display: block;
+      position: relative;
+    }
+
+    /* Fixed Topbar */
+    #topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--topbar-height);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 150;
+    }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .topbar-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--fg);
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .topbar-toggle-btn:hover {
+      background: var(--fg);
+      color: var(--bg);
+      border-color: var(--fg);
+    }
+    .kbd-tag {
+      font-size: 10px;
+      padding: 1px 4px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: var(--bg);
+      color: var(--fg-muted);
+    }
+    .topbar-toggle-btn:hover .kbd-tag {
+      background: #333;
+      color: #fff;
+      border-color: #444;
+    }
+    .topbar-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--fg);
+    }
+    .topbar-return-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-family: var(--font-mono);
+      color: var(--fg-muted);
+      text-decoration: none;
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      transition: all 0.15s ease;
+    }
+    .topbar-return-btn:hover {
+      background: var(--fg);
+      color: var(--bg);
+      border-color: var(--fg);
+    }
+
+    /* Fixed Retractable Sidebar */
+    #sidebar {
+      position: fixed;
+      top: var(--topbar-height);
+      left: 0;
+      bottom: 0;
+      width: var(--sidebar-width);
+      border-right: 1px solid var(--border);
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      z-index: 120;
+      padding: 20px 16px;
+      overflow-y: auto;
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    body.sidebar-collapsed #sidebar {
+      transform: translateX(-100%);
+    }
+
+    #sidebarBackdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      top: var(--topbar-height);
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(2px);
+      z-index: 110;
+    }
+
+    .brand-block {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 14px;
+    }
+    .brand-title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .badge-tag {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: var(--surface);
+      font-weight: 600;
+      color: var(--fg-muted);
+    }
+    .brand-sub {
+      font-size: 11px;
+      color: var(--fg-muted);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+    .sidebar-search {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: var(--font-sans);
+      background: var(--surface);
+      color: var(--fg);
+      margin-bottom: 12px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .sidebar-search:focus {
+      border-color: var(--fg);
+      background: var(--bg);
+    }
+    .nav-section-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--fg-subtle);
+      margin-top: 14px;
+      margin-bottom: 6px;
+    }
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .nav-link {
+      display: block;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: var(--fg-muted);
+      text-decoration: none;
+      border-radius: 4px;
+      transition: all 0.1s ease;
+      line-height: 1.35;
+    }
+    .nav-link:hover {
+      background: var(--surface);
+      color: var(--fg);
+    }
+    .nav-link.active {
+      background: var(--fg);
+      color: var(--bg);
+      font-weight: 500;
+    }
+
+    /* Main Container */
+    #main {
+      margin-top: var(--topbar-height);
+      margin-left: var(--sidebar-width);
+      padding: 36px 56px 120px 56px;
+      max-width: calc(var(--sidebar-width) + 980px);
+      transition: margin-left 0.22s cubic-bezier(0.16, 1, 0.3, 1), max-width 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    body.sidebar-collapsed #main {
+      margin-left: auto;
+      margin-right: auto;
+      max-width: 1020px;
+      padding: 36px 32px 120px 32px;
+    }
+
+    .article-header {
+      border-bottom: 2px solid var(--fg);
+      padding-bottom: 24px;
+      margin-bottom: 36px;
+    }
+    .meta-line {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--fg-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 10px;
+      color: var(--fg);
+    }
+    .lead-paragraph {
+      font-size: 15px;
+      color: var(--fg-muted);
+      line-height: 1.6;
+    }
+
+    /* Section Styling */
+    section {
+      margin-bottom: 56px;
+      scroll-margin-top: 60px;
+    }
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+      margin-top: 38px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .sec-num {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--fg-subtle);
+    }
+    h3 {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+    p { margin-bottom: 12px; color: var(--fg); font-size: 14px; line-height: 1.65; }
+    ul, ol { margin-bottom: 14px; padding-left: 20px; font-size: 13.5px; }
+    li { margin-bottom: 5px; }
+
+    /* Tables */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin: 16px 0 24px 0;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; text-align: left; }
+    th {
+      background: var(--surface);
+      font-weight: 600;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--fg);
+    }
+    td {
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: top;
+      color: var(--fg);
+      line-height: 1.5;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafafa; }
+
+    /* Code & Callout */
+    code, .mono {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 2px 4px;
+      border-radius: 3px;
+      color: var(--fg);
+    }
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      overflow-x: auto;
+      line-height: 1.5;
+      margin: 12px 0 18px 0;
+    }
+    .callout {
+      border-left: 3px solid var(--fg);
+      background: var(--surface);
+      padding: 12px 16px;
+      margin: 16px 0;
+      border-radius: 0 4px 4px 0;
+      font-size: 13px;
+    }
+    .callout-title {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    /* Cards */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+      margin: 16px 0 24px 0;
+    }
+    .spec-card {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .spec-card:hover { border-color: #000; }
+    .spec-card-title { font-size: 13.5px; font-weight: 700; margin-bottom: 4px; }
+    .spec-card-tag {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--fg-muted);
+      margin-bottom: 6px;
+      display: block;
+    }
+    .spec-card-body { font-size: 12px; color: var(--fg-muted); line-height: 1.45; }
+
+    .tool-box {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px;
+      margin-bottom: 14px;
+      background: var(--bg);
+    }
+    .tool-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+    }
+    .tool-id {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--fg);
+    }
+    .tool-tagline {
+      font-size: 12.5px;
+      color: var(--fg-muted);
+      margin-bottom: 8px;
+    }
+    .field-tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 2px 6px;
+      margin-right: 4px;
+      margin-bottom: 4px;
+    }
+
+    @media print {
+      #topbar, #sidebar, #sidebarBackdrop { display: none !important; }
+      #main { margin-top: 0 !important; margin-left: 0 !important; padding: 0 !important; max-width: 100% !important; }
+      body { font-size: 11pt; line-height: 1.4; }
+      h2 { page-break-after: avoid; }
+    }
+
+    /* Mobile / Tablet responsive */
+    @media (max-width: 900px) {
+      #sidebar {
+        transform: translateX(-100%);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+      }
+      body.sidebar-mobile-open #sidebar {
+        transform: translateX(0) !important;
+      }
+      body.sidebar-mobile-open #sidebarBackdrop {
+        display: block;
+      }
+      #main {
+        margin-left: 0 !important;
+        padding: 24px 18px 100px !important;
+        max-width: 100% !important;
+      }
+      .topbar-title {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Topbar with always-visible Outline button -->
+  <header id="topbar">
+    <div class="topbar-left">
+      <button id="topbarToggleBtn" type="button" class="topbar-toggle-btn" onclick="toggleSidebar()" title="Toggle Chapters / Outline ([)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="21" y1="6" y2="6"/><line x1="3" x2="21" y1="12" y2="12"/><line x1="3" x2="21" y1="18" y2="18"/></svg>
+        <span id="toggleBtnLabel">Outline</span>
+        <kbd class="kbd-tag">[</kbd>
+      </button>
+      <span class="topbar-title">Specimen Cryptography Laboratory — Technical Manual</span>
+    </div>
+    <div class="topbar-right">
+      <a href="/" class="topbar-return-btn">
+        <span>← Return to App</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Mobile Backdrop Overlay -->
+  <div id="sidebarBackdrop" onclick="toggleSidebar()"></div>
+
+  <!-- Retractable Navigation Sidebar -->
+  <aside id="sidebar">
+    <div class="brand-block">
+      <div class="brand-title">
+        <span>Specimen</span>
+        <span class="badge-tag">Omnibus Manual</span>
+      </div>
+      <div class="brand-sub">Exhaustive Technical Catalog & Specifications</div>
+    </div>
+
+    <input type="text" id="navFilter" class="sidebar-search" placeholder="Filter sections, tools, lessons..." oninput="filterNav()" />
+
+    <div class="nav-section-title">1. System Architecture</div>
+    <ul class="nav-list">
+      <li><a href="#sec-overview" class="nav-link" onclick="closeSidebarOnMobile()">1.1 Executive Overview</a></li>
+      <li><a href="#sec-stack" class="nav-link" onclick="closeSidebarOnMobile()">1.2 System Architecture</a></li>
+      <li><a href="#sec-zero-telemetry" class="nav-link" onclick="closeSidebarOnMobile()">1.3 Zero-Telemetry Boundary</a></li>
+    </ul>
+
+    <div class="nav-section-title">2. Curriculum Tracks (75 Lessons)</div>
+    <ul class="nav-list">
+      <li><a href="#track-classical" class="nav-link" onclick="closeSidebarOnMobile()">Track 1: Classical Ciphers (13)</a></li>
+      <li><a href="#track-encoding" class="nav-link" onclick="closeSidebarOnMobile()">Track 2: Encoding & Data (7)</a></li>
+      <li><a href="#track-symmetric" class="nav-link" onclick="closeSidebarOnMobile()">Track 3: Modern Symmetric (6)</a></li>
+      <li><a href="#track-hashing" class="nav-link" onclick="closeSidebarOnMobile()">Track 4: Hashing & MACs (7)</a></li>
+      <li><a href="#track-publickey" class="nav-link" onclick="closeSidebarOnMobile()">Track 5: Public Key & RSA (7)</a></li>
+      <li><a href="#track-postquantum" class="nav-link" onclick="closeSidebarOnMobile()">Track 6: Post-Quantum PQC (13)</a></li>
+      <li><a href="#track-numbertheory" class="nav-link" onclick="closeSidebarOnMobile()">Track 7: Number Theory (11)</a></li>
+      <li><a href="#track-security" class="nav-link" onclick="closeSidebarOnMobile()">Track 8: Cyber Security Practice (11)</a></li>
+    </ul>
+
+    <div class="nav-section-title">3. Calculators & Engines (81 Tools)</div>
+    <ul class="nav-list">
+      <li><a href="#tools-classical" class="nav-link" onclick="closeSidebarOnMobile()">Classical Ciphers (15)</a></li>
+      <li><a href="#tools-encoding" class="nav-link" onclick="closeSidebarOnMobile()">Encoding & Representation (10)</a></li>
+      <li><a href="#tools-symmetric" class="nav-link" onclick="closeSidebarOnMobile()">Symmetric Encryption (7)</a></li>
+      <li><a href="#tools-hashing" class="nav-link" onclick="closeSidebarOnMobile()">Hashing & Commitments (8)</a></li>
+      <li><a href="#tools-publickey" class="nav-link" onclick="closeSidebarOnMobile()">Public Key & Key Exchange (6)</a></li>
+      <li><a href="#tools-postquantum" class="nav-link" onclick="closeSidebarOnMobile()">Post-Quantum Lattice & Signatures (7)</a></li>
+      <li><a href="#tools-numbertheory" class="nav-link" onclick="closeSidebarOnMobile()">Number Theory Engines (15)</a></li>
+      <li><a href="#tools-security" class="nav-link" onclick="closeSidebarOnMobile()">Attacks & Protocol Labs (13)</a></li>
+    </ul>
+
+    <div class="nav-section-title">4. Interactive Labs</div>
+    <ul class="nav-list">
+      <li><a href="#lab-lattice" class="nav-link" onclick="closeSidebarOnMobile()">4.1 2D Lattice CVP / LWE</a></li>
+      <li><a href="#lab-ecb" class="nav-link" onclick="closeSidebarOnMobile()">4.2 ECB Penguin Flaw</a></li>
+      <li><a href="#lab-cbc" class="nav-link" onclick="closeSidebarOnMobile()">4.3 CBC Bit-Flipping Exploit</a></li>
+      <li><a href="#lab-dh" class="nav-link" onclick="closeSidebarOnMobile()">4.4 Diffie-Hellman MITM</a></li>
+      <li><a href="#lab-tls" class="nav-link" onclick="closeSidebarOnMobile()">4.5 TLS 1.3 Wire Inspector</a></li>
+      <li><a href="#lab-zkp" class="nav-link" onclick="closeSidebarOnMobile()">4.6 ZKP Playground</a></li>
+      <li><a href="#lab-pqc" class="nav-link" onclick="closeSidebarOnMobile()">4.7 Post-Quantum Lattice Studio</a></li>
+      <li><a href="#lab-forensics" class="nav-link" onclick="closeSidebarOnMobile()">4.8 Steganography & Forensics Studio</a></li>
+      <li><a href="#lab-pipeline" class="nav-link" onclick="closeSidebarOnMobile()">4.9 Crypto Pipeline Studio</a></li>
+      <li><a href="#lab-benchmark" class="nav-link" onclick="closeSidebarOnMobile()">4.10 Benchmark & Avalanche Arena</a></li>
+      <li><a href="#lab-enigma" class="nav-link" onclick="closeSidebarOnMobile()">4.11 Mechanical Enigma Simulator</a></li>
+      <li><a href="#lab-flashcards" class="nav-link" onclick="closeSidebarOnMobile()">4.12 Spaced-Repetition Study Flashcards</a></li>
+      <li><a href="#lab-notebook" class="nav-link" onclick="closeSidebarOnMobile()">4.13 Lab Notebook, Ranking & Certificate</a></li>
+    </ul>
+
+    <div class="nav-section-title">5. AI Assistant & Inspector</div>
+    <ul class="nav-list">
+      <li><a href="#sec-detector" class="nav-link" onclick="closeSidebarOnMobile()">5.1 Format Auto-Detector</a></li>
+      <li><a href="#sec-solver" class="nav-link" onclick="closeSidebarOnMobile()">5.2 Formula Math Solver</a></li>
+    </ul>
+
+    <div class="nav-section-title">6. Challenges & Standards</div>
+    <ul class="nav-list">
+      <li><a href="#sec-challenges" class="nav-link" onclick="closeSidebarOnMobile()">6.1 Challenge Arena (CTF)</a></li>
+      <li><a href="#sec-standards" class="nav-link" onclick="closeSidebarOnMobile()">6.2 Standards Matrix (FIPS)</a></li>
+      <li><a href="#sec-ui" class="nav-link" onclick="closeSidebarOnMobile()">6.3 UI & Universal Scratchpad</a></li>
+      <li><a href="#sec-mobile" class="nav-link" onclick="closeSidebarOnMobile()">6.4 Mobile & Phone Ergonomics</a></li>
+      <li><a href="#sec-deployment" class="nav-link" onclick="closeSidebarOnMobile()">6.5 Firebase & Cloud Hosting</a></li>
+    </ul>
+  </aside>
+
+  <main id="main">
+    <header class="article-header">
+      <div class="meta-line">
+        <span>Specimen Omnibus Reference</span>
+        <span>·</span>
+        <span>8 Tracks · 75 Lessons · 81 Tools · 6 Labs</span>
+        <span>·</span>
+        <span>Formal Release</span>
+      </div>
+      <h1>Specimen Cryptography & Cryptanalysis Comprehensive Manual</h1>
+      <p class="lead-paragraph">
+        Exhaustive reference document specifying every curriculum course, lesson objective, interactive mathematical converter, specialized attack laboratory, format auto-detector heuristic, and operational feature within the Specimen workbench.
+      </p>
+    </header>
+
+    <!-- SECTION 1 -->
+    <section id="sec-overview">
+      <h2><span class="sec-num">1.1</span> Executive Summary & Mission</h2>
+      <p>
+        <strong>Specimen</strong> is an all-in-one, client-side, interactive cryptology laboratory designed to bridge the chasm between abstract algebraic definitions and concrete byte-level implementations. The system's foundational thesis is <em>"worked out by hand"</em>: every cipher, hash function, post-quantum polynomial reduction, and protocol exchange exposes every intermediate variable, matrix step, and state permutation directly in the browser.
+      </p>
+    </section>
+
+    <section id="sec-stack">
+      <h2><span class="sec-num">1.2</span> System Architecture</h2>
+      <p>
+        Specimen is engineered as an offline-first Single Page Application (SPA) powered by React 19, TypeScript 5.8, TanStack Router v1, and TanStack Query v5. The application requires zero backend API server: all calculations, Miller-Rabin witness iterations, Galois field arithmetic, and Babai lattice closest-vector calculations execute directly within the V8 / JavaScript engine.
+      </p>
+    </section>
+
+    <section id="sec-zero-telemetry">
+      <h2><span class="sec-num">1.3</span> Security Philosophy & Zero-Telemetry Boundary</h2>
+      <p>
+        The platform enforces a strict client-side evaluation boundary. No inputs, keys, plaintexts, or ciphertexts are ever sent over network sockets. The local storage is used solely for client-side persistence (scratchpad snippets, challenge victory flags).
+      </p>
+    </section>
+
+    <!-- SECTION 2: TRACKS AND ALL 75 LESSONS -->
+    <section id="sec-tracks">
+      <h2><span class="sec-num">2.0</span> Complete Curriculum Breakdown (8 Tracks, 75 Lessons)</h2>
+      <p>
+        Below is the exhaustive syllabus of all 75 lessons across the 8 curriculum tracks, detailing the topic, linked converter, and worked out mathematical example.
+      </p>
+
+    <div id="track-classical" style="margin-top: 36px; scroll-margin-top: 60px;">
+      <h3>Track: Classical Ciphers (13 Lessons)</h3>
+      <p><em>Substitution, transposition and the birth of cryptanalysis</em>. Start where the field started. These ciphers are all breakable by hand, which is exactly why they teach so well: every weakness you find here has a modern descendant.</p>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 25%;">Lesson</th>
+              <th style="width: 15%;">Tool Linked</th>
+              <th style="width: 35%;">Worked Example</th>
+              <th style="width: 25%;">Lesson ID</th>
+            </tr>
+          </thead>
+          <tbody>
+  
+      <tr>
+        <td><strong>What cryptography actually promises</strong></td>
+        <td><span style="color:#999;">None</span></td>
+        <td><em>Analyzing CIA Guarantees on a Tampered Message</em> (4 steps)</td>
+        <td><code>what-is-cryptography</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>The Caesar cipher</strong></td>
+        <td><code>caesar</code></td>
+        <td><em>Encrypting, Decrypting, and Automated Chi-Squared Breaking</em> (5 steps)</td>
+        <td><code>caesar</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Atbash and ROT13</strong></td>
+        <td><code>atbash</code></td>
+        <td><em>Demonstrating the ROT13 Involution</em> (3 steps)</td>
+        <td><code>atbash-rot13</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>The affine cipher</strong></td>
+        <td><code>affine</code></td>
+        <td><em>Encrypting with a = 5, b = 8 and Decrypting via Modular Inverse</em> (5 steps)</td>
+        <td><code>affine</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>The Vigenère cipher</strong></td>
+        <td><code>vigenere</code></td>
+        <td><em>Kasiski Examination Key-Length Recovery</em> (5 steps)</td>
+        <td><code>vigenere</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>The autokey cipher</strong></td>
+        <td><code>autokey</code></td>
+        <td><em>Autokey Encryption and Probable-Word Cryptanalysis</em> (5 steps)</td>
+        <td><code>autokey</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>The Playfair cipher</strong></td>
+        <td><code>playfair</code></td>
+        <td><em>Encrypting Digraph &#039;HE&#039; on a Keyword Grid</em> (5 steps)</td>
+        <td><code>playfair</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Transposition ciphers</strong></td>
+        <td><code>columnar</code></td>
+        <td><em>Columnar Transposition with Key &#039;ZEBRA&#039;</em> (5 steps)</td>
+        <td><code>transposition</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Breaking ciphers with frequency analysis</strong></td>
+        <td><code>frequency</code></td>
+        <td><em>Calculating Index of Coincidence on a Sample Text</em> (5 steps)</td>
+        <td><code>frequency-analysis</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>The one-time pad</strong></td>
+        <td><code>otp</code></td>
+        <td><em>The Two-Time Pad Catastrophe (Key Cancellation)</em> (5 steps)</td>
+        <td><code>one-time-pad</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>The Hill cipher</strong></td>
+        <td><code>hill-cipher</code></td>
+        <td><em>Encrypting with a 2×2 Hill Matrix and Solving for Inverse</em> (6 steps)</td>
+        <td><code>hill-cipher</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>The Enigma machine</strong></td>
+        <td><code>enigma</code></td>
+        <td><em>Exploiting the Reflector Flaw E(x) ≠ x via Crib Alignment</em> (5 steps)</td>
+        <td><code>enigma</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Bacon&#039;s cipher &amp; steganography</strong></td>
+        <td><code>baconian</code></td>
+        <td><em>Encoding &#039;GO&#039; into Typography via Bacon&#039;s 5-Bit Alphabet</em> (5 steps)</td>
+        <td><code>baconian</code></td>
+      </tr>
+    
+          </tbody>
+        </table>
+      </div>
+    </div>
+  
+    <div id="track-encoding" style="margin-top: 36px; scroll-margin-top: 60px;">
+      <h3>Track: Encoding &amp; Representation (7 Lessons)</h3>
+      <p><em>Base64, hex, binary and why none of it is encryption</em>. Before a cipher can touch your message it has to become bytes. This track covers the representations every tool and protocol assumes you understand.</p>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 25%;">Lesson</th>
+              <th style="width: 15%;">Tool Linked</th>
+              <th style="width: 35%;">Worked Example</th>
+              <th style="width: 25%;">Lesson ID</th>
+            </tr>
+          </thead>
+          <tbody>
+  
+      <tr>
+        <td><strong>Encoding is not encryption</strong></td>
+        <td><code>base64</code></td>
+        <td><em>Contrasting Base64 Encoding vs AES-256-GCM Encryption</em> (3 steps)</td>
+        <td><code>encoding-vs-encryption</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Bits, bytes and character sets</strong></td>
+        <td><code>binary</code></td>
+        <td><em>UTF-8 Multi-Byte Breakdown for &#039;Crypto €&#039;</em> (4 steps)</td>
+        <td><code>bits-and-bytes</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>How Base64 works</strong></td>
+        <td><code>base64</code></td>
+        <td><em>Encoding &#039;Man&#039; into Base64 Step-by-Step</em> (4 steps)</td>
+        <td><code>base64-detail</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Hexadecimal and other bases</strong></td>
+        <td><code>radix</code></td>
+        <td><em>Converting Byte 0xA7 to Binary and Decimal</em> (4 steps)</td>
+        <td><code>hex-and-bases</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Base58 and Base32 representations</strong></td>
+        <td><code>base58</code></td>
+        <td><em>Decoding a Base32 2FA Secret Key Step-by-Step</em> (4 steps)</td>
+        <td><code>base58-base32</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Endianness &amp; machine byte order</strong></td>
+        <td><code>endianness</code></td>
+        <td><em>Storing 32-Bit Integer 0x0A0B0C0D in Memory</em> (4 steps)</td>
+        <td><code>endianness</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Percent-encoding and injection risk</strong></td>
+        <td><code>url</code></td>
+        <td><em>Tracing a Double-Encoding Filter Evasion Attack</em> (5 steps)</td>
+        <td><code>url-encoding</code></td>
+      </tr>
+    
+          </tbody>
+        </table>
+      </div>
+    </div>
+  
+    <div id="track-symmetric" style="margin-top: 36px; scroll-margin-top: 60px;">
+      <h3>Track: Symmetric Encryption (6 Lessons)</h3>
+      <p><em>XOR, DES, AES, modes of operation and stream ciphers</em>. One shared key, enormous speed, and a long list of ways to misuse it. This is the machinery that protects almost all data at rest and in transit.</p>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 25%;">Lesson</th>
+              <th style="width: 15%;">Tool Linked</th>
+              <th style="width: 35%;">Worked Example</th>
+              <th style="width: 25%;">Lesson ID</th>
+            </tr>
+          </thead>
+          <tbody>
+  
+      <tr>
+        <td><strong>Symmetric encryption</strong></td>
+        <td><code>random-key</code></td>
+        <td><em>Measuring Shannon Avalanche Effect in AES-128</em> (5 steps)</td>
+        <td><code>symmetric-basics</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>XOR, the atom of symmetric crypto</strong></td>
+        <td><code>xor</code></td>
+        <td><em>Executing a Bit-Flipping Attack on Unauthenticated XOR</em> (4 steps)</td>
+        <td><code>xor</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>DES and the Feistel network</strong></td>
+        <td><code>des-feistel</code></td>
+        <td><em>One Feistel Round Step-by-Step</em> (6 steps)</td>
+        <td><code>des-feistel</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>AES, the modern standard</strong></td>
+        <td><code>aes-state</code></td>
+        <td><em>Tracing the Four Transformations of an AES Round</em> (5 steps)</td>
+        <td><code>aes</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Modes of operation</strong></td>
+        <td><code>block-modes</code></td>
+        <td><em>The Classic Vaudenay CBC Padding Oracle Attack</em> (4 steps)</td>
+        <td><code>modes</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Stream ciphers &amp; ARX Quarter-Rounds</strong></td>
+        <td><code>chacha20</code></td>
+        <td><em>Executing the ChaCha20 Quarter-Round Function</em> (5 steps)</td>
+        <td><code>stream-ciphers</code></td>
+      </tr>
+    
+          </tbody>
+        </table>
+      </div>
+    </div>
+  
+    <div id="track-hashing" style="margin-top: 36px; scroll-margin-top: 60px;">
+      <h3>Track: Hashing &amp; Integrity (7 Lessons)</h3>
+      <p><em>Digests, HMAC, password storage and Merkle trees</em>. One-way functions give you fingerprints rather than secrecy. Get them right and you get integrity, authentication and safe password storage.</p>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 25%;">Lesson</th>
+              <th style="width: 15%;">Tool Linked</th>
+              <th style="width: 35%;">Worked Example</th>
+              <th style="width: 25%;">Lesson ID</th>
+            </tr>
+          </thead>
+          <tbody>
+  
+      <tr>
+        <td><strong>What a cryptographic hash guarantees</strong></td>
+        <td><code>hash</code></td>
+        <td><em>Contrasting Pre-Image vs Collision Attack Complexity</em> (4 steps)</td>
+        <td><code>hash-properties</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>MD5, SHA-1, SHA-2 and SHA-3</strong></td>
+        <td><code>hash</code></td>
+        <td><em>The SHAttered Attack Collision (Google / CWI 2017)</em> (5 steps)</td>
+        <td><code>hash-families</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>The avalanche effect</strong></td>
+        <td><code>avalanche</code></td>
+        <td><em>Measuring Avalanche on SHA-256 with 1-Bit Difference</em> (5 steps)</td>
+        <td><code>avalanche</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>HMAC and message authentication</strong></td>
+        <td><code>hmac</code></td>
+        <td><em>Executing a Length-Extension Attack on Naive H(Key ‖ Message)</em> (5 steps)</td>
+        <td><code>hmac</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Storing passwords properly</strong></td>
+        <td><code>pbkdf2</code></td>
+        <td><em>Argon2id Password Storage Structure</em> (4 steps)</td>
+        <td><code>password-hashing</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Merkle trees and commitments</strong></td>
+        <td><code>merkle-tree</code></td>
+        <td><em>Verifying an Inclusion Proof with 4 Leaves (N=4)</em> (4 steps)</td>
+        <td><code>merkle-trees</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>The Birthday paradox &amp; hash collisions</strong></td>
+        <td><code>birthday-attack</code></td>
+        <td><em>Deriving the 23-Person Birthday Problem</em> (4 steps)</td>
+        <td><code>birthday-paradox</code></td>
+      </tr>
+    
+          </tbody>
+        </table>
+      </div>
+    </div>
+  
+    <div id="track-publickey" style="margin-top: 36px; scroll-margin-top: 60px;">
+      <h3>Track: Public Key Cryptography (7 Lessons)</h3>
+      <p><em>Diffie–Hellman, RSA, elliptic curves, signatures and TLS</em>. Two keys instead of one, built on problems nobody knows how to solve efficiently. This is what makes secure communication with strangers possible.</p>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 25%;">Lesson</th>
+              <th style="width: 15%;">Tool Linked</th>
+              <th style="width: 35%;">Worked Example</th>
+              <th style="width: 25%;">Lesson ID</th>
+            </tr>
+          </thead>
+          <tbody>
+  
+      <tr>
+        <td><strong>The public-key idea</strong></td>
+        <td><code>diffie-hellman</code></td>
+        <td><em>Hybrid Encryption Architecture Flow</em> (4 steps)</td>
+        <td><code>asymmetric-idea</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Diffie–Hellman key exchange</strong></td>
+        <td><code>dh-mitm</code></td>
+        <td><em>Diffie-Hellman Exchange with Small Numbers (p = 23, g = 5)</em> (4 steps)</td>
+        <td><code>diffie-hellman</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>RSA</strong></td>
+        <td><code>rsa-suite</code></td>
+        <td><em>RSA Key Generation and Encryption with Small Primes</em> (6 steps)</td>
+        <td><code>rsa</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Elliptic-curve cryptography</strong></td>
+        <td><code>ecc-point</code></td>
+        <td><em>How Sony PS3 Master Key was Extracted via ECDSA Nonce Reuse</em> (4 steps)</td>
+        <td><code>ecc</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Digital signatures</strong></td>
+        <td><code>rsa-suite</code></td>
+        <td><em>Verifying an Ed25519 Signature</em> (4 steps)</td>
+        <td><code>signatures</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Certificates, PKI and TLS</strong></td>
+        <td><code>tls-handshake</code></td>
+        <td><em>TLS 1.3 1-RTT Handshake Trace</em> (4 steps)</td>
+        <td><code>pki-tls</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Post-quantum cryptography overview</strong></td>
+        <td><code>quantum-threat</code></td>
+        <td><em>Hybrid Post-Quantum Key Exchange (X25519 + ML-KEM)</em> (4 steps)</td>
+        <td><code>post-quantum</code></td>
+      </tr>
+    
+          </tbody>
+        </table>
+      </div>
+    </div>
+  
+    <div id="track-postquantum" style="margin-top: 36px; scroll-margin-top: 60px;">
+      <h3>Track: Post-Quantum Cryptography (13 Lessons)</h3>
+      <p><em>Lattice cryptography, LWE, Kyber, Dilithium, Falcon, McEliece, hash signatures &amp; quantum threats</em>. When quantum computers scale, RSA and ECC fail in polynomial time under Shor&#039;s algorithm. This track explores the mathematical frontiers that replace them: high-dimensional lattices, error-correcting codes, multivariate quadratics, and stateless hash trees.</p>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 25%;">Lesson</th>
+              <th style="width: 15%;">Tool Linked</th>
+              <th style="width: 35%;">Worked Example</th>
+              <th style="width: 25%;">Lesson ID</th>
+            </tr>
+          </thead>
+          <tbody>
+  
+      <tr>
+        <td><strong>Quantum Computing &amp; Cryptographic Threats</strong></td>
+        <td><code>pqc-threat-calculator</code></td>
+        <td><em>Quantum Superposition Measurement Probability</em> (4 steps)</td>
+        <td><code>quantum-foundations</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Shor&#039;s vs. Grover&#039;s Algorithms</strong></td>
+        <td><code>pqc-threat-calculator</code></td>
+        <td><em>Shor&#039;s Period-Finding Algorithm on N = 15 with Base a = 7</em> (4 steps)</td>
+        <td><code>shor-grover-threats</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Lattice-Based Cryptography Foundations</strong></td>
+        <td><code>pqc-lattice-visualizer</code></td>
+        <td><em>2D Lattice Gram-Schmidt Orthogonalization</em> (4 steps)</td>
+        <td><code>lattice-foundations</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Learning With Errors (LWE &amp; Module-LWE)</strong></td>
+        <td><code>pqc-lwe-simulator</code></td>
+        <td><em>Learning With Errors (LWE) Single-Bit Decryption (q = 17)</em> (4 steps)</td>
+        <td><code>lwe-module-lwe</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>FIPS 203: ML-KEM (CRYSTALS-Kyber)</strong></td>
+        <td><code>pqc-kyber-simulator</code></td>
+        <td><em>Kyber Ring Modulus and Polynomial Representation</em> (4 steps)</td>
+        <td><code>fips203-ml-kem</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>FIPS 204: ML-DSA (CRYSTALS-Dilithium)</strong></td>
+        <td><code>pqc-threat-calculator</code></td>
+        <td><em>Dilithium Rejection Sampling Mechanics</em> (4 steps)</td>
+        <td><code>fips204-ml-dsa</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>FIPS 206: FN-DSA (Falcon)</strong></td>
+        <td><code>pqc-threat-calculator</code></td>
+        <td><em>Falcon NTRU Equation and Basis Geometry</em> (4 steps)</td>
+        <td><code>fips206-fn-dsa</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Code-Based Cryptography &amp; Classic McEliece</strong></td>
+        <td><code>pqc-mceliece</code></td>
+        <td><em>McEliece Error-Correction Encryption Flow</em> (4 steps)</td>
+        <td><code>code-based-mceliece</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Hash-Based Digital Signatures (SPHINCS+)</strong></td>
+        <td><code>pqc-lamport-merkle</code></td>
+        <td><em>Lamport One-Time Signature (OTS) on 1 Byte (0xA5 = 10100101₂)</em> (4 steps)</td>
+        <td><code>hash-signatures</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Multivariate &amp; Isogeny Cryptography</strong></td>
+        <td><code>pqc-threat-calculator</code></td>
+        <td><em>The Castryck-Decru Attack on SIDH / SIKE (2022)</em> (4 steps)</td>
+        <td><code>multivariate-isogeny</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>PQC Migration &amp; Hybrid Schemes</strong></td>
+        <td><code>tls-handshake</code></td>
+        <td><em>X25519Kyber768 Hybrid Key Derivation in TLS 1.3</em> (4 steps)</td>
+        <td><code>pqc-migration-hybrid</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Lightweight Cryptography (Stallings Ch. 14)</strong></td>
+        <td><code>simplified-aes</code></td>
+        <td><em>ASCON-128 Sponge State and Permutation</em> (4 steps)</td>
+        <td><code>lightweight-crypto</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Simplified AES (Stallings Appendix D)</strong></td>
+        <td><code>simplified-aes</code></td>
+        <td><em>S-AES MixColumns on State [[A, 2], [3, F]]</em> (4 steps)</td>
+        <td><code>saes-appendix-d</code></td>
+      </tr>
+    
+          </tbody>
+        </table>
+      </div>
+    </div>
+  
+    <div id="track-numbertheory" style="margin-top: 36px; scroll-margin-top: 60px;">
+      <h3>Track: Number Theory (11 Lessons)</h3>
+      <p><em>Modular arithmetic, Euclid, primes, totients, groups and fields</em>. The mathematics underneath everything above. Each concept here appears directly inside a cipher — nothing is included for its own sake.</p>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 25%;">Lesson</th>
+              <th style="width: 15%;">Tool Linked</th>
+              <th style="width: 35%;">Worked Example</th>
+              <th style="width: 25%;">Lesson ID</th>
+            </tr>
+          </thead>
+          <tbody>
+  
+      <tr>
+        <td><strong>Divisibility and the division algorithm</strong></td>
+        <td><code>gcd</code></td>
+        <td><em>Division Algorithm on Negative Dividends</em> (4 steps)</td>
+        <td><code>divisibility</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Modular arithmetic</strong></td>
+        <td><code>mod-pow</code></td>
+        <td><em>Fast Modular Exponentiation via Repeated Squaring (7¹²⁸ mod 13)</em> (3 steps)</td>
+        <td><code>modular-arithmetic</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>The Euclidean algorithm</strong></td>
+        <td><code>euclid-tableau</code></td>
+        <td><em>Extended Euclidean Algorithm for gcd(240, 46)</em> (6 steps)</td>
+        <td><code>euclid</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Modular inverses</strong></td>
+        <td><code>mod-inverse</code></td>
+        <td><em>Calculating Modular Inverse 17⁻¹ mod 3120 for RSA</em> (5 steps)</td>
+        <td><code>modular-inverse</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Primes and primality testing</strong></td>
+        <td><code>miller-rabin</code></td>
+        <td><em>Miller-Rabin Primality Test on n = 221 with Base a = 174</em> (4 steps)</td>
+        <td><code>primes</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>The factoring problem</strong></td>
+        <td><code>factorize</code></td>
+        <td><em>Fermat&#039;s Factorization Method on Close Primes (n = 5959)</em> (6 steps)</td>
+        <td><code>factoring</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Fermat, Euler and totients</strong></td>
+        <td><code>totient</code></td>
+        <td><em>Euler&#039;s Totient Calculation on Composite n = 360</em> (4 steps)</td>
+        <td><code>fermat-euler</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Groups, generators and finite fields</strong></td>
+        <td><code>primitive-roots</code></td>
+        <td><em>Galois Field GF(2⁸) Multiplication by x (xtime in AES)</em> (4 steps)</td>
+        <td><code>groups-fields</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>The Chinese Remainder Theorem</strong></td>
+        <td><code>crt-multi</code></td>
+        <td><em>Solving a 2-Congruence System via CRT</em> (5 steps)</td>
+        <td><code>crt</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>The discrete logarithm problem</strong></td>
+        <td><code>baby-step-giant-step</code></td>
+        <td><em>Baby-Step Giant-Step on g = 2, h = 9, p = 11</em> (5 steps)</td>
+        <td><code>discrete-log</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Randomness and entropy</strong></td>
+        <td><code>random-key</code></td>
+        <td><em>Measuring Shannon Entropy of a 4-Digit PIN vs 128-bit Key</em> (4 steps)</td>
+        <td><code>randomness</code></td>
+      </tr>
+    
+          </tbody>
+        </table>
+      </div>
+    </div>
+  
+    <div id="track-security" style="margin-top: 36px; scroll-margin-top: 60px;">
+      <h3>Track: Cyber Security Practice (11 Lessons)</h3>
+      <p><em>Threat models, authentication, web attacks, side channels, key management</em>. Cryptography rarely fails at the mathematics. This track covers the operational reality where systems actually break.</p>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 25%;">Lesson</th>
+              <th style="width: 15%;">Tool Linked</th>
+              <th style="width: 35%;">Worked Example</th>
+              <th style="width: 25%;">Lesson ID</th>
+            </tr>
+          </thead>
+          <tbody>
+  
+      <tr>
+        <td><strong>The CIA triad and threat modelling</strong></td>
+        <td><span style="color:#999;">None</span></td>
+        <td><em>STRIDE Threat Modeling of an IoT Pacemaker Telemetry Gateway</em> (6 steps)</td>
+        <td><code>cia-triad</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Authentication and authorisation</strong></td>
+        <td><code>password-entropy</code></td>
+        <td><em>Preventing IDOR / BOLA at the Data Access Layer</em> (4 steps)</td>
+        <td><code>authn-authz</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Passwords, entropy and cracking</strong></td>
+        <td><code>password-entropy</code></td>
+        <td><em>Measuring Password Search Space &amp; Modern GPU Cracking Speed</em> (5 steps)</td>
+        <td><code>passwords</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Common web vulnerabilities</strong></td>
+        <td><span style="color:#999;">None</span></td>
+        <td><em>Neutralizing SQL Injection via Parameterized Prepared Statements</em> (5 steps)</td>
+        <td><code>web-attacks</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Side-channel attacks</strong></td>
+        <td><code>timing-attack</code></td>
+        <td><em>Recovering a 32-Byte Authentication Tag via Early-Exit Timing Leaks</em> (5 steps)</td>
+        <td><code>side-channels</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Padding oracle attacks</strong></td>
+        <td><code>padding-oracle</code></td>
+        <td><em>CBC Plaintext Byte Decryption via Vaudenay&#039;s PKCS#7 Padding Oracle</em> (6 steps)</td>
+        <td><code>padding-oracle</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Zero-knowledge proofs</strong></td>
+        <td><code>zkp-schnorr</code></td>
+        <td><em>Schnorr Identification Protocol (Proving Discrete Log Knowledge)</em> (5 steps)</td>
+        <td><code>zero-knowledge-proofs</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Key management</strong></td>
+        <td><code>random-key</code></td>
+        <td><em>Envelope Encryption Lifecycle in Cloud KMS Architecture</em> (5 steps)</td>
+        <td><code>key-management</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Network and transport security</strong></td>
+        <td><span style="color:#999;">None</span></td>
+        <td><em>TLS 1.3 1-RTT Handshake with Ephemeral Diffie-Hellman Key Exchange</em> (5 steps)</td>
+        <td><code>network-security</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Replay attacks &amp; freshness defenses</strong></td>
+        <td><code>replay-attack</code></td>
+        <td><em>Defeating REST API Transaction Replay with Atomic Nonce Caching</em> (5 steps)</td>
+        <td><code>replay-attacks</code></td>
+      </tr>
+    
+      <tr>
+        <td><strong>Operational security and incident response</strong></td>
+        <td><span style="color:#999;">None</span></td>
+        <td><em>Ransomware Incident Response: 15-Minute MTTD &amp; MTTR Timeline</em> (5 steps)</td>
+        <td><code>opsec</code></td>
+      </tr>
+    
+          </tbody>
+        </table>
+      </div>
+    </div>
+  
+    <section id="sec-tools">
+      <h2><span class="sec-num">3.0</span> Exhaustive Directory of All 81 Converters & Calculators</h2>
+      <p>
+        Every single tool in the Specimen laboratory is listed below with its identifier, track category, parameter input fields, validation defaults, and output description.
+      </p>
+
+    <div id="tools-classical" style="margin-top: 32px; scroll-margin-top: 60px;">
+      <h3>Category: Classical Ciphers (19 Tools)</h3>
+      <div style="display: grid; gap: 12px; margin-top: 14px;">
+  
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: caesar</span>
+          <span class="badge-tag">classical</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Caesar cipher</div>
+        <div class="tool-tagline">Shift every letter down the alphabet</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Text) [text] default: "<code>THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG</code>"</span> <span class="field-tag"><strong>shift</strong> (Shift (0–25)) [number] default: "<code>3</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encrypt</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: rot13</span>
+          <span class="badge-tag">classical</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">ROT13</div>
+        <div class="tool-tagline">The 13-shift involution</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Text) [text] default: "<code>URYYB JBEYQ</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: atbash</span>
+          <span class="badge-tag">classical</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Atbash cipher</div>
+        <div class="tool-tagline">Reverse the alphabet (A↔Z, B↔Y)</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Text) [text] default: "<code>SHERLOCK</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: affine</span>
+          <span class="badge-tag">classical</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Affine cipher</div>
+        <div class="tool-tagline">Multiply and shift mod 26: E(x) = (ax + b) mod 26</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Text) [text] default: "<code>AFFINE CIPHER</code>"</span> <span class="field-tag"><strong>a</strong> (Multiplier a (must be coprime to 26)) [number] default: "<code>5</code>"</span> <span class="field-tag"><strong>b</strong> (Shift b) [number] default: "<code>8</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encrypt</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: vigenere</span>
+          <span class="badge-tag">classical</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Vigenère cipher</div>
+        <div class="tool-tagline">Polyalphabetic substitution with a repeating keyword</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Text) [text] default: "<code>ATTACK AT DAWN</code>"</span> <span class="field-tag"><strong>key</strong> (Key) [text] default: "<code>LEMON</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encrypt</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: autokey</span>
+          <span class="badge-tag">classical</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Autokey cipher</div>
+        <div class="tool-tagline">Vigenère with plaintext extending the key</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Text) [text] default: "<code>MEET AT MIDNIGHT</code>"</span> <span class="field-tag"><strong>primer</strong> (Primer key) [text] default: "<code>QUEEN</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encrypt</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: playfair</span>
+          <span class="badge-tag">classical</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Playfair cipher</div>
+        <div class="tool-tagline">Encrypt digraphs on a 5×5 key square</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Text) [text] default: "<code>HIDE THE GOLD IN THE TREE STUMP</code>"</span> <span class="field-tag"><strong>key</strong> (Key) [text] default: "<code>MONARCHY</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encrypt</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: rail-fence</span>
+          <span class="badge-tag">classical</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Rail fence cipher</div>
+        <div class="tool-tagline">Zig-zag transposition across rails</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Text) [text] default: "<code>DEFEND THE EAST WALL</code>"</span> <span class="field-tag"><strong>rails</strong> (Rails) [number] default: "<code>3</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encrypt</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: columnar</span>
+          <span class="badge-tag">classical</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Columnar transposition</div>
+        <div class="tool-tagline">Rearrange text into columns ordered by key letters</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Text) [text] default: "<code>THE TREASURE IS BURIED AT THE COVE</code>"</span> <span class="field-tag"><strong>key</strong> (Key) [text] default: "<code>ZEBRA</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encrypt</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: otp</span>
+          <span class="badge-tag">classical</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">One-Time Pad (Vernam)</div>
+        <div class="tool-tagline">Information-theoretically unbreakable cipher (Shannon 1949)</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Ciphertext / Plaintext</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Text) [text] default: "<code>TOP SECRET MESSAGE</code>"</span> <span class="field-tag"><strong>key</strong> (Key (Pad)) [text] default: "<code>XMCKLPOIQAZWSXEDCRF</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encrypt</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: hill-cipher</span>
+          <span class="badge-tag">classical</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Hill cipher (2×2)</div>
+        <div class="tool-tagline">Polygraphic matrix linear algebra over ℤ/26ℤ</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Output</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Text) [text] default: "<code>HELP</code>"</span> <span class="field-tag"><strong>k00</strong> (Matrix [0,0]) [number] default: "<code>3</code>"</span> <span class="field-tag"><strong>k01</strong> (Matrix [0,1]) [number] default: "<code>3</code>"</span> <span class="field-tag"><strong>k10</strong> (Matrix [1,0]) [number] default: "<code>2</code>"</span> <span class="field-tag"><strong>k11</strong> (Matrix [1,1]) [number] default: "<code>5</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encrypt</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: enigma</span>
+          <span class="badge-tag">classical</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Enigma machine</div>
+        <div class="tool-tagline">WWII 3-rotor (I, II, III) + Reflector B + Plugboard simulator</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Ciphertext</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Text) [text] default: "<code>WETTERBERICHT</code>"</span> <span class="field-tag"><strong>rotors</strong> (Rotor positions (e.g. AAA)) [text] default: "<code>AAA</code>"</span> <span class="field-tag"><strong>plugs</strong> (Plugboard pairs (e.g. AB CD)) [text] default: "<code>AB CD</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: baconian</span>
+          <span class="badge-tag">classical</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Baconian cipher</div>
+        <div class="tool-tagline">Francis Bacon&#039;s 5-bit steganographic binary alphabet</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Text) [text] default: "<code>KNOWLEDGE</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encode</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: frequency</span>
+          <span class="badge-tag">classical</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Frequency analysis &amp; χ²</div>
+        <div class="tool-tagline">Count letters, plot against English frequencies, calculate χ²</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Analysis</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Text to analyze) [textarea] default: "<code>WKH TXLFN EURZQ IRA MXPSV RYHU WKH ODCB GRJ</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: caesar-bruteforce</span>
+          <span class="badge-tag">classical</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Caesar cracker</div>
+        <div class="tool-tagline">Try all 25 shifts at once</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>All shifts</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Ciphertext) [text] default: "<code>WKH TXLFN EURZQ IRA</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: morse</span>
+          <span class="badge-tag">classical</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Morse code</div>
+        <div class="tool-tagline">Dots and dashes of telegraphy</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Text) [text] default: "<code>SOS</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encode</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: xor-cipher</span>
+          <span class="badge-tag">classical</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">XOR cipher</div>
+        <div class="tool-tagline">The fundamental bitwise building block of modern crypto</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Text) [text] default: "<code>HELLO</code>"</span> <span class="field-tag"><strong>key</strong> (Key) [text] default: "<code>KEY</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encrypt</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: bifid</span>
+          <span class="badge-tag">classical</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Bifid &amp; Polybius cipher</div>
+        <div class="tool-tagline">Fractionation and transposition across a 5×5 Polybius grid (Delastelle 1901)</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Ciphertext / Plaintext</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Text) [text] default: "<code>DEFEND THE EAST WALL</code>"</span> <span class="field-tag"><strong>key</strong> (5×5 Key Alphabet (25 letters)) [text] default: "<code>ABCDEFGHIKLMNOPQRSTUVWXYZ</code>"</span> <span class="field-tag"><strong>period</strong> (Fractionation Period) [number] default: "<code>5</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encrypt</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: scytale</span>
+          <span class="badge-tag">classical</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Spartan Scytale transposition</div>
+        <div class="tool-tagline">Ancient cylinder wrapping transposition (5th century BCE)</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Parchment Strip</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Secret Message) [text] default: "<code>SEND REINFORCEMENTS TO SPARTA</code>"</span> <span class="field-tag"><strong>diameter</strong> (Rod Diameter (Rows)) [number] default: "<code>4</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encrypt</code>"</span>
+        </div>
+      </div>
+    
+      </div>
+    </div>
+  
+    <div id="tools-encoding" style="margin-top: 32px; scroll-margin-top: 60px;">
+      <h3>Category: Encoding & Representation (11 Tools)</h3>
+      <div style="display: grid; gap: 12px; margin-top: 14px;">
+  
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: base64</span>
+          <span class="badge-tag">encoding</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Base64</div>
+        <div class="tool-tagline">Bytes to 64 ASCII characters</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Input) [text] default: "<code>Hello, cryptography!</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encode</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: base58</span>
+          <span class="badge-tag">encoding</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Base58 (Bitcoin)</div>
+        <div class="tool-tagline">Binary-to-text without ambiguous characters (0, O, I, l)</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Base58 Output</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Input Text / Base58) [text] default: "<code>Satoshi Nakamoto</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encode</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: base32</span>
+          <span class="badge-tag">encoding</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Base32 (RFC 4648)</div>
+        <div class="tool-tagline">Case-insensitive encoding used in 2FA / TOTP secrets</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Base32 Output</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Input Text / Base32) [text] default: "<code>The quick brown fox</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encode</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: endianness</span>
+          <span class="badge-tag">encoding</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Endianness inspector</div>
+        <div class="tool-tagline">Big-Endian vs Little-Endian byte order representation</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Endian Analysis</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>hex</strong> (Hex Bytes (e.g. 01020304)) [text] default: "<code>01020304</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: hex</span>
+          <span class="badge-tag">encoding</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Hexadecimal (Base 16)</div>
+        <div class="tool-tagline">Two characters per byte</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Input) [text] default: "<code>Crypto</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encode</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: binary</span>
+          <span class="badge-tag">encoding</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Binary (Base 2)</div>
+        <div class="tool-tagline">The raw bits of your UTF-8 bytes</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Input) [text] default: "<code>ABC</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encode</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: decimal</span>
+          <span class="badge-tag">encoding</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Decimal bytes</div>
+        <div class="tool-tagline">Bytes as numbers 0–255</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Input) [text] default: "<code>Hi!</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encode</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: url</span>
+          <span class="badge-tag">encoding</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">URL percent-encoding</div>
+        <div class="tool-tagline">Safe transmission in HTTP query parameters</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Input) [text] default: "<code>hello world &amp; foo=bar</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encode</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: radix</span>
+          <span class="badge-tag">encoding</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Base / Radix converter</div>
+        <div class="tool-tagline">Convert any integer between bases 2 and 36</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Converted number</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>value</strong> (Value) [text] default: "<code>255</code>"</span> <span class="field-tag"><strong>from</strong> (From base) [number] default: "<code>10</code>"</span> <span class="field-tag"><strong>to</strong> (To base) [number] default: "<code>16</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: format-inspector</span>
+          <span class="badge-tag">encoding</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Format auto-detector &amp; inspector</div>
+        <div class="tool-tagline">Intelligent format recognition, Shannon entropy, and cryptographic signature analysis</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Detection Report</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Input Buffer / Ciphertext / Key / Hash) [textarea] default: "<code>e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: format-inspector</span>
+          <span class="badge-tag">encoding</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Universal Format &amp; Entropy Inspector</div>
+        <div class="tool-tagline">Instantly detect Hex, Base64, Binary, Decimal, Hashes, and calculate Shannon entropy</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Detection &amp; Entropy Summary</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>input</strong> (Ciphertext, Hash, or Encoded String) [textarea] default: "<code>48656c6c6f20576f726c6421</code>"</span>
+        </div>
+      </div>
+    
+      </div>
+    </div>
+  
+    <div id="tools-symmetric" style="margin-top: 32px; scroll-margin-top: 60px;">
+      <h3>Category: Symmetric Encryption (6 Tools)</h3>
+      <div style="display: grid; gap: 12px; margin-top: 14px;">
+  
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: aes</span>
+          <span class="badge-tag">symmetric</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">AES-GCM</div>
+        <div class="tool-tagline">Authenticated encryption with WebCrypto</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Plaintext or hex payload) [text] default: "<code>Secret message to AES encrypt</code>"</span> <span class="field-tag"><strong>pass</strong> (Passphrase) [text] default: "<code>correct horse battery staple</code>"</span> <span class="field-tag"><strong>mode</strong> (Direction) [select] default: "<code>encrypt</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: aes-state</span>
+          <span class="badge-tag">symmetric</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">AES State &amp; Rounds visualizer</div>
+        <div class="tool-tagline">SubBytes (S-Box), ShiftRows, MixColumns (GF(2⁸)), AddRoundKey</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Round 1 State Matrix</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (16-byte Block Text) [text] default: "<code>CRYPTO STUDY LAB</code>"</span> <span class="field-tag"><strong>key</strong> (32-char Round Key Hex) [text] default: "<code>000102030405060708090a0b0c0d0e0f</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: block-modes</span>
+          <span class="badge-tag">symmetric</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Block cipher modes</div>
+        <div class="tool-tagline">ECB (Penguin effect) vs CBC (IV chaining) vs CTR vs GCM (AEAD)</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Block Mode Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Plaintext) [text] default: "<code>ATTACKATDAWNATTACKATDAWN</code>"</span> <span class="field-tag"><strong>mode</strong> (Cipher Mode) [select] default: "<code>CBC</code>"</span> <span class="field-tag"><strong>iv</strong> (IV / Nonce (Hex)) [text] default: "<code>fedcba9876543210</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: random-key</span>
+          <span class="badge-tag">symmetric</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Cryptographic keygen</div>
+        <div class="tool-tagline">CSPRNG cryptographically secure random bytes</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Generated key</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>bytes</strong> (Length in bytes) [number] default: "<code>32</code>"</span> <span class="field-tag"><strong>fmt</strong> (Format) [select] default: "<code>hex</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: des-feistel</span>
+          <span class="badge-tag">symmetric</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">DES Feistel round function</div>
+        <div class="tool-tagline">32-bit expansion E, 8 S-Boxes (6→4 bits), and P-permutation</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Round Output</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>right</strong> (32-bit Right Half (Hex)) [text] default: "<code>87878787</code>"</span> <span class="field-tag"><strong>subkey</strong> (48-bit Round Subkey (Hex)) [text] default: "<code>1b02effc7072</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: chacha20</span>
+          <span class="badge-tag">symmetric</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">ChaCha20 quarter-round (ARX)</div>
+        <div class="tool-tagline">Addition modulo 2³², Rotation, and XOR without cache-timing leaks</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Updated Words</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>a</strong> (Word a (Hex / Int)) [number] default: "<code>286331153</code>"</span> <span class="field-tag"><strong>b</strong> (Word b (Hex / Int)) [number] default: "<code>16909060</code>"</span> <span class="field-tag"><strong>c</strong> (Word c (Hex / Int)) [number] default: "<code>2609737539</code>"</span> <span class="field-tag"><strong>d</strong> (Word d (Hex / Int)) [number] default: "<code>19088743</code>"</span>
+        </div>
+      </div>
+    
+      </div>
+    </div>
+  
+    <div id="tools-hashing" style="margin-top: 32px; scroll-margin-top: 60px;">
+      <h3>Category: Hashing & Integrity (7 Tools)</h3>
+      <div style="display: grid; gap: 12px; margin-top: 14px;">
+  
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: hash</span>
+          <span class="badge-tag">hashing</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Cryptographic hash</div>
+        <div class="tool-tagline">SHA-256, SHA-512, SHA-1, MD5</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Digest</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Input text) [text] default: "<code>Cryptex</code>"</span> <span class="field-tag"><strong>algo</strong> (Algorithm) [select] default: "<code>SHA-256</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: hmac</span>
+          <span class="badge-tag">hashing</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">HMAC</div>
+        <div class="tool-tagline">Keyed-hash message authentication code</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>MAC Tag</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text</strong> (Message) [text] default: "<code>transfer $500 to Bob</code>"</span> <span class="field-tag"><strong>key</strong> (Secret key) [text] default: "<code>supersecretkey</code>"</span> <span class="field-tag"><strong>algo</strong> (Hash algorithm) [select] default: "<code>SHA-256</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: avalanche</span>
+          <span class="badge-tag">hashing</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Avalanche effect</div>
+        <div class="tool-tagline">Flip one bit, watch 50% of hash bits flip</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Comparison</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>text1</strong> (Input 1) [text] default: "<code>The quick brown fox</code>"</span> <span class="field-tag"><strong>text2</strong> (Input 2 (change one letter)) [text] default: "<code>The quick brown foy</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: merkle-tree</span>
+          <span class="badge-tag">hashing</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Merkle tree &amp; audit proofs</div>
+        <div class="tool-tagline">Hierarchical cryptographic hash trees with O(log N) verification</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Tree Root &amp; Audit Proof</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>leaves</strong> (Data Leaves (comma or newline separated)) [textarea] default: "<code>Tx1: Alice-&gt;Bob 5, Tx2: Bob-&gt;Charlie 2, Tx3: Charlie-&gt;Dave 1, Tx4: Dave-&gt;Eve 4</code>"</span> <span class="field-tag"><strong>verifyIndex</strong> (Verify leaf index) [number] default: "<code>1</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: birthday-attack</span>
+          <span class="badge-tag">hashing</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Birthday paradox &amp; collision calculator</div>
+        <div class="tool-tagline">Why an n-bit hash offers only n/2 bits of collision resistance</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Collision Probability</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>bits</strong> (Hash Output Size (bits)) [number] default: "<code>32</code>"</span> <span class="field-tag"><strong>samples</strong> (Number of Generated Hashes (k)) [number] default: "<code>77000</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: pbkdf2</span>
+          <span class="badge-tag">hashing</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">PBKDF2 key derivation</div>
+        <div class="tool-tagline">Slow, salted password hashing</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Derived key (Hex)</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>pass</strong> (Password) [text] default: "<code>correct horse battery staple</code>"</span> <span class="field-tag"><strong>salt</strong> (Salt) [text] default: "<code>random-salt-1234</code>"</span> <span class="field-tag"><strong>iters</strong> (Iterations) [number] default: "<code>100000</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: merkle-tree</span>
+          <span class="badge-tag">hashing</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Merkle Tree &amp; Blockchain SPV Verifier</div>
+        <div class="tool-tagline">Ralph Merkle binary hash tree with O(log₂ N) SPV audit proofs</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Merkle Root &amp; Proof Path</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>leaves</strong> (Transactions / Leaves (comma or newline separated)) [textarea] default: "<code>Tx 0: Alice -&gt; Bob (5 BTC)
+Tx 1: Bob -&gt; Carol (2.5 BTC)
+Tx 2: Dave -&gt; Eve (1.1 BTC)
+Tx 3: Satoshi -&gt; Hal (50 BTC)</code>"</span> <span class="field-tag"><strong>verifyLeafIndex</strong> (Target Leaf Index to Verify (0-based)) [number] default: "<code>0</code>"</span>
+        </div>
+      </div>
+    
+      </div>
+    </div>
+  
+    <div id="tools-publickey" style="margin-top: 32px; scroll-margin-top: 60px;">
+      <h3>Category: Public Key Cryptography (7 Tools)</h3>
+      <div style="display: grid; gap: 12px; margin-top: 14px;">
+  
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: rsa-suite</span>
+          <span class="badge-tag">publickey</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">RSA complete suite</div>
+        <div class="tool-tagline">Key generation, encryption, decryption, digital signing &amp; verification</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>RSA Cryptographic Output</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>p</strong> (Prime p) [number] default: "<code>61</code>"</span> <span class="field-tag"><strong>q</strong> (Prime q) [number] default: "<code>53</code>"</span> <span class="field-tag"><strong>e</strong> (Public exponent e (coprime to φ(n))) [number] default: "<code>17</code>"</span> <span class="field-tag"><strong>msg</strong> (Integer message m (&lt; n)) [number] default: "<code>65</code>"</span> <span class="field-tag"><strong>action</strong> (Operation) [select] default: "<code>encrypt</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: rsa</span>
+          <span class="badge-tag">publickey</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">RSA miniature demo</div>
+        <div class="tool-tagline">Toy RSA arithmetic on small primes</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>RSA Demo</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>p</strong> (Prime p) [number] default: "<code>61</code>"</span> <span class="field-tag"><strong>q</strong> (Prime q) [number] default: "<code>53</code>"</span> <span class="field-tag"><strong>e</strong> (Exponent e) [number] default: "<code>17</code>"</span> <span class="field-tag"><strong>msg</strong> (Message m) [number] default: "<code>42</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: dh-mitm</span>
+          <span class="badge-tag">publickey</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Diffie–Hellman &amp; MITM attack</div>
+        <div class="tool-tagline">Key exchange and why unauthenticated DH is vulnerable to active interceptors</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Exchange Status</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>p</strong> (Prime modulus p) [number] default: "<code>997</code>"</span> <span class="field-tag"><strong>g</strong> (Generator g) [number] default: "<code>7</code>"</span> <span class="field-tag"><strong>a</strong> (Alice private key a) [number] default: "<code>123</code>"</span> <span class="field-tag"><strong>b</strong> (Bob private key b) [number] default: "<code>456</code>"</span> <span class="field-tag"><strong>mitm</strong> (Eve active MITM interceptor) [select] default: "<code>no</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: diffie-hellman</span>
+          <span class="badge-tag">publickey</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Diffie–Hellman key exchange</div>
+        <div class="tool-tagline">Agree on a secret key over a public channel</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Shared secret</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>p</strong> (Prime modulus p) [number] default: "<code>353</code>"</span> <span class="field-tag"><strong>g</strong> (Generator g) [number] default: "<code>3</code>"</span> <span class="field-tag"><strong>a</strong> (Alice private exponent a) [number] default: "<code>97</code>"</span> <span class="field-tag"><strong>b</strong> (Bob private exponent b) [number] default: "<code>233</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: ecc-point</span>
+          <span class="badge-tag">publickey</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Elliptic curve cryptography</div>
+        <div class="tool-tagline">Weierstrass curve y² ≡ x³ + ax + b (mod p), point addition and scalar k·P</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Scalar Multiplication Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>a</strong> (Curve parameter a) [number] default: "<code>2</code>"</span> <span class="field-tag"><strong>b</strong> (Curve parameter b) [number] default: "<code>3</code>"</span> <span class="field-tag"><strong>p</strong> (Prime p) [number] default: "<code>97</code>"</span> <span class="field-tag"><strong>px</strong> (Base point P.x) [number] default: "<code>3</code>"</span> <span class="field-tag"><strong>py</strong> (Base point P.y) [number] default: "<code>6</code>"</span> <span class="field-tag"><strong>k</strong> (Private scalar k) [number] default: "<code>7</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: tls-handshake</span>
+          <span class="badge-tag">publickey</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">TLS 1.3 Handshake trace</div>
+        <div class="tool-tagline">Step-by-step packet inspection: ClientHello, KeyShare, CertVerify, Finished (1-RTT)</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Handshake Transcript</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>cipher</strong> (Cipher Suite) [select] default: "<code>TLS_AES_256_GCM_SHA384</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: tls-handshake</span>
+          <span class="badge-tag">publickey</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">TLS 1.3 Handshake &amp; HKDF Key Schedule</div>
+        <div class="tool-tagline">Inspect RFC 8446 1-RTT handshake, HKDF key derivation, and AEAD tampering</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>TLS 1.3 Handshake Summary</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>cipher</strong> (Cipher Suite) [text] default: "<code>TLS_AES_128_GCM_SHA256</code>"</span>
+        </div>
+      </div>
+    
+      </div>
+    </div>
+  
+    <div id="tools-postquantum" style="margin-top: 32px; scroll-margin-top: 60px;">
+      <h3>Category: Post-Quantum Cryptography (6 Tools)</h3>
+      <div style="display: grid; gap: 12px; margin-top: 14px;">
+  
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: pqc-lwe-simulator</span>
+          <span class="badge-tag">postquantum</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Learning with Errors (LWE) Lab</div>
+        <div class="tool-tagline">Simulate LWE &amp; Module-LWE encryption, Gaussian noise perturbation, and threshold decryption</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>LWE Decryption Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>dim</strong> (Dimension (n)) [number] default: "<code>3</code>"</span> <span class="field-tag"><strong>modulus</strong> (Modulus (q)) [number] default: "<code>97</code>"</span> <span class="field-tag"><strong>bit</strong> (Message Bit to Encrypt (m)) [select] default: "<code>1</code>"</span> <span class="field-tag"><strong>noise</strong> (Max Noise Bound (±e)) [number] default: "<code>2</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: pqc-kyber-simulator</span>
+          <span class="badge-tag">postquantum</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">ML-KEM / Kyber Key Encapsulation</div>
+        <div class="tool-tagline">Step-by-step FIPS 203 Module-Lattice Key Encapsulation (ML-KEM-512/768/1024)</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>ML-KEM Shared Secret Output</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>variant</strong> (Security Level) [select] default: "<code>768</code>"</span> <span class="field-tag"><strong>msg</strong> (Entropy Seed Message) [text] default: "<code>SecretPayloadForTLS1.3</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: pqc-lamport-merkle</span>
+          <span class="badge-tag">postquantum</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Lamport OTS &amp; Merkle Signatures</div>
+        <div class="tool-tagline">Interactive One-Time Signatures (OTS) and binary Merkle authentication paths</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Lamport &amp; Merkle Signature</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>msg</strong> (Message String) [text] default: "<code>POST-QUANTUM</code>"</span> <span class="field-tag"><strong>bits</strong> (Digest Bit Length) [number] default: "<code>16</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: pqc-threat-calculator</span>
+          <span class="badge-tag">postquantum</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Quantum Threat &amp; Resource Estimator</div>
+        <div class="tool-tagline">Evaluate Shor&#039;s &amp; Grover&#039;s impact, required logical/physical qubits, and CNSA 2.0 deadlines</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Quantum Threat Evaluation</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>algo</strong> (Cryptographic Algorithm) [select] default: "<code>rsa-2048</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: pqc-mceliece</span>
+          <span class="badge-tag">postquantum</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Classic McEliece Code-Based Crypto</div>
+        <div class="tool-tagline">Simulate Robert McEliece&#039;s 1978 Goppa code cryptosystem and syndrome decoding</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Code-Based Decoding Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>bits</strong> (4-Bit Message Vector) [text] default: "<code>1011</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: simplified-aes</span>
+          <span class="badge-tag">postquantum</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Simplified AES (Stallings Appendix D)</div>
+        <div class="tool-tagline">16-bit educational AES with NibbleSub over GF(2⁴), ShiftRows, MixColumns, and Key Expansion</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>S-AES Output (Hex)</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>input</strong> (Plaintext / Ciphertext (4 Hex Digits)) [text] default: "<code>6F6B</code>"</span> <span class="field-tag"><strong>key</strong> (Master Key (4 Hex Digits)) [text] default: "<code>A73B</code>"</span> <span class="field-tag"><strong>mode</strong> (Operation) [select] default: "<code>enc</code>"</span>
+        </div>
+      </div>
+    
+      </div>
+    </div>
+  
+    <div id="tools-numbertheory" style="margin-top: 32px; scroll-margin-top: 60px;">
+      <h3>Category: Number Theory Foundations (17 Tools)</h3>
+      <div style="display: grid; gap: 12px; margin-top: 14px;">
+  
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: euclid-tableau</span>
+          <span class="badge-tag">numbertheory</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Extended Euclid Bézout tableau</div>
+        <div class="tool-tagline">Find gcd(a, b) and integer coefficients satisfying a·s + b·t = gcd(a, b)</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Bézout Tableau &amp; Solution</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>a</strong> (First number a) [number] default: "<code>240</code>"</span> <span class="field-tag"><strong>b</strong> (Second number b) [number] default: "<code>46</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: miller-rabin</span>
+          <span class="badge-tag">numbertheory</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Miller–Rabin primality test</div>
+        <div class="tool-tagline">Step-by-step witness evaluation testing n - 1 = 2^s · d</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Primality Decision</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>n</strong> (Candidate integer n) [number] default: "<code>561</code>"</span> <span class="field-tag"><strong>a</strong> (Witness base a) [number] default: "<code>2</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: crt-multi</span>
+          <span class="badge-tag">numbertheory</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Chinese Remainder (CRT) solver</div>
+        <div class="tool-tagline">Solve systems of simultaneous congruences x ≡ a_i (mod m_i)</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>CRT Solution</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>congruences</strong> (System of Congruences) [text] default: "<code>2 mod 3, 3 mod 5, 2 mod 7</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: baby-step-giant-step</span>
+          <span class="badge-tag">numbertheory</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Discrete log (Baby-step Giant-step)</div>
+        <div class="tool-tagline">Solve g^x ≡ h (mod p) in O(√p) time using Shanks&#039; algorithm</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Discrete Logarithm</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>g</strong> (Base generator g) [number] default: "<code>3</code>"</span> <span class="field-tag"><strong>h</strong> (Target value h) [number] default: "<code>13</code>"</span> <span class="field-tag"><strong>p</strong> (Prime modulus p) [number] default: "<code>17</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: gcd</span>
+          <span class="badge-tag">numbertheory</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Euclidean algorithm (GCD)</div>
+        <div class="tool-tagline">Trace the greatest common divisor step by step</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>GCD Trace</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>a</strong> (Number a) [number] default: "<code>1071</code>"</span> <span class="field-tag"><strong>b</strong> (Number b) [number] default: "<code>462</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: extended-euclid</span>
+          <span class="badge-tag">numbertheory</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Extended Euclidean algorithm</div>
+        <div class="tool-tagline">Find Bézout coefficients: ax + by = gcd(a,b)</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Coefficients</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>a</strong> (a) [number] default: "<code>240</code>"</span> <span class="field-tag"><strong>b</strong> (b) [number] default: "<code>46</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: mod-inverse</span>
+          <span class="badge-tag">numbertheory</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Modular multiplicative inverse</div>
+        <div class="tool-tagline">Solve a·x ≡ 1 (mod m)</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Modular Inverse</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>a</strong> (Number a) [number] default: "<code>17</code>"</span> <span class="field-tag"><strong>m</strong> (Modulus m) [number] default: "<code>3120</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: mod-pow</span>
+          <span class="badge-tag">numbertheory</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Modular exponentiation</div>
+        <div class="tool-tagline">Fast power-mod algorithm: b^e mod m</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>b</strong> (Base b) [number] default: "<code>7</code>"</span> <span class="field-tag"><strong>e</strong> (Exponent e) [number] default: "<code>256</code>"</span> <span class="field-tag"><strong>m</strong> (Modulus m) [number] default: "<code>13</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: prime-test</span>
+          <span class="badge-tag">numbertheory</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Primality test</div>
+        <div class="tool-tagline">Check if n is prime and find its smallest factor</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Primality</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>n</strong> (Number) [text] default: "<code>104729</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: factorize</span>
+          <span class="badge-tag">numbertheory</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Prime factorization</div>
+        <div class="tool-tagline">Decompose n into its prime factors</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Factors</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>n</strong> (Number) [text] default: "<code>3233</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: totient</span>
+          <span class="badge-tag">numbertheory</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Euler&#039;s totient φ(n)</div>
+        <div class="tool-tagline">Count integers coprime to n</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Result</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>n</strong> (Number) [text] default: "<code>3233</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: sieve</span>
+          <span class="badge-tag">numbertheory</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Sieve of Eratosthenes</div>
+        <div class="tool-tagline">All primes up to a given limit</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Primes</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>limit</strong> (Limit) [number] default: "<code>200</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: primitive-roots</span>
+          <span class="badge-tag">numbertheory</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Primitive roots</div>
+        <div class="tool-tagline">Generators of the multiplicative group ℤ/pℤ*</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Roots mod p</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>p</strong> (Prime p) [number] default: "<code>23</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: modular-group</span>
+          <span class="badge-tag">numbertheory</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Modular group &amp; ring explorer</div>
+        <div class="tool-tagline">Analyze ℤ_n elements, units in ℤ_n*, zero divisors, and inverses</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Group Structure Analysis</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>n</strong> (Modulus n (2–50)) [number] default: "<code>12</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: quadratic-residues</span>
+          <span class="badge-tag">numbertheory</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Quadratic residues &amp; Legendre symbol</div>
+        <div class="tool-tagline">Euler&#039;s criterion a^((p-1)/2) mod p and square roots modulo p</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Legendre Symbol &amp; Roots</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>a</strong> (Residue a) [number] default: "<code>5</code>"</span> <span class="field-tag"><strong>p</strong> (Prime p) [number] default: "<code>19</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: chinese-remainder</span>
+          <span class="badge-tag">numbertheory</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Chinese Remainder Theorem Solver</div>
+        <div class="tool-tagline">Solve systems of linear congruences with coprime moduli step-by-step</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Unique Residue Solution</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>congruences</strong> (System of Congruences (a mod m)) [text] default: "<code>2 mod 3, 3 mod 5, 2 mod 7</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: fast-mod-exp</span>
+          <span class="badge-tag">numbertheory</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Fast Modular Exponentiation (Repeated Squaring)</div>
+        <div class="tool-tagline">Compute b^e mod m in O(log e) time with binary expansion and step table</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Calculated Power mod m</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>base</strong> (Base (b)) [text] default: "<code>7</code>"</span> <span class="field-tag"><strong>exp</strong> (Exponent (e)) [text] default: "<code>560</code>"</span> <span class="field-tag"><strong>mod</strong> (Modulus (m)) [text] default: "<code>561</code>"</span>
+        </div>
+      </div>
+    
+      </div>
+    </div>
+  
+    <div id="tools-security" style="margin-top: 32px; scroll-margin-top: 60px;">
+      <h3>Category: Security Protocols & Attacks (8 Tools)</h3>
+      <div style="display: grid; gap: 12px; margin-top: 14px;">
+  
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: padding-oracle</span>
+          <span class="badge-tag">security</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Padding oracle attack (CBC)</div>
+        <div class="tool-tagline">Decrypt ciphertext byte-by-byte via PKCS#7 error leakage (Vaudenay 2002)</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Attack Results</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>secret</strong> (Target Word (1-8 chars)) [text] default: "<code>SECRET</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: timing-attack</span>
+          <span class="badge-tag">security</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Side-channel timing attack</div>
+        <div class="tool-tagline">Compare early-exit string comparisons vs constant-time execution</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Timing Comparison</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>candidate</strong> (Attacker Guess) [text] default: "<code>SECXXXXX</code>"</span> <span class="field-tag"><strong>secret</strong> (Actual Secret Password) [text] default: "<code>SECURITY</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: zkp-schnorr</span>
+          <span class="badge-tag">security</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Zero-Knowledge Proof (Schnorr)</div>
+        <div class="tool-tagline">Peggy proves knowledge of x such that y = g^x (mod p) without revealing x</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>ZKP Verification</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>x</strong> (Peggy&#039;s Secret x) [number] default: "<code>42</code>"</span> <span class="field-tag"><strong>challenge</strong> (Victor&#039;s Challenge c) [number] default: "<code>7</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: password-entropy</span>
+          <span class="badge-tag">security</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Password entropy &amp; crack time</div>
+        <div class="tool-tagline">Calculate bits of entropy and offline brute-force duration</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Entropy Analysis</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>password</strong> (Password) [text] default: "<code>Tr0ub4dor&amp;3</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: replay-attack</span>
+          <span class="badge-tag">security</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Replay attack &amp; nonce defense</div>
+        <div class="tool-tagline">Simulate wiretap replay attacks and freshness defenses (Nonces vs Timestamps)</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Bank Server Decision</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>amount</strong> (Transfer Amount ($)) [number] default: "<code>500</code>"</span> <span class="field-tag"><strong>nonce</strong> (Include Cryptographic Nonce) [select] default: "<code>yes</code>"</span> <span class="field-tag"><strong>timestamp</strong> (Include Request Timestamp) [select] default: "<code>yes</code>"</span> <span class="field-tag"><strong>attack</strong> (Eve Executes Replay) [select] default: "<code>yes</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: shamir-secret-sharing</span>
+          <span class="badge-tag">security</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Shamir&#039;s Secret Sharing (Threshold Cryptosystem)</div>
+        <div class="tool-tagline">Adi Shamir (k, n) threshold polynomial secret sharing over GF(257) with Lagrange interpolation</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Reconstructed Secret &amp; Lagrange Math</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>secret</strong> (Secret Value S (0–255)) [number] default: "<code>42</code>"</span> <span class="field-tag"><strong>threshold</strong> (Threshold (k)) [number] default: "<code>3</code>"</span> <span class="field-tag"><strong>total</strong> (Total Shares (n)) [number] default: "<code>5</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: zkp-schnorr</span>
+          <span class="badge-tag">security</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Schnorr Zero-Knowledge Proof (ZKP)</div>
+        <div class="tool-tagline">3-move identification protocol (Commitment -&gt; Challenge -&gt; Response) over cyclic groups</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Verification Equation &amp; Proof Status</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>secretX</strong> (Prover Secret Key (x)) [number] default: "<code>5</code>"</span> <span class="field-tag"><strong>challengeE</strong> (Verifier Challenge (c)) [number] default: "<code>4</code>"</span>
+        </div>
+      </div>
+    
+      <div class="tool-box">
+        <div class="tool-header">
+          <span class="tool-id">tool: padding-oracle</span>
+          <span class="badge-tag">security</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">CBC Padding Oracle Attack Simulator</div>
+        <div class="tool-tagline">Serge Vaudenay&#039;s attack decrypting CBC ciphertexts byte-by-byte via padding error leakage</div>
+        <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Output Produced:</strong> <code>Decrypted Plaintext Byte &amp; Oracle Queries</code></p>
+        <div>
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: 4px;">Configurable Input Fields:</span>
+          <span class="field-tag"><strong>secretWord</strong> (Secret Word in Target Block (Max 8 Chars)) [text] default: "<code>CRYPTO</code>"</span>
+        </div>
+      </div>
+    
+      </div>
+    </div>
+  
+    <!-- SECTION 4: SPECIALIZED LABS -->
+    <section id="sec-labs">
+      <h2><span class="sec-num">4.0</span> Specialized Interactive Simulation Labs</h2>
+      <p>
+        Beyond standard converters, Specimen features six dedicated interactive laboratories designed to simulate multi-party protocol dynamics, structural cryptographic leakage, and lattice geometry.
+      </p>
+
+      <div id="lab-lattice" class="tool-box" style="margin-top: 20px;">
+        <h3 style="margin-top: 0;">4.1 2D Lattice Closest Vector Problem (CVP / LWE) Visualizer</h3>
+        <p>
+          Lattice-based cryptography underpins NIST FIPS 203 (ML-KEM) and FIPS 204 (ML-DSA). This visualizer renders a 2D Euclidean coordinate system demonstrating the hardness of the Closest Vector Problem (CVP):
+        </p>
+        <ul>
+          <li><strong>Interactive Basis Vectors:</strong> Modify basis vectors b₁ and b₂ dynamically. Observe how non-orthogonal (skewed) bases distort the fundamental domain.</li>
+          <li><strong>Babai's Nearest Plane Algorithm:</strong> Evaluates target points t = (t_x, t_y) by projecting onto basis vectors and rounding coefficients c_i = ⌊c_i⌉.</li>
+          <li><strong>Gram-Schmidt Orthogonalization:</strong> Computes the orthogonalized private basis b₁*, b₂* to prove why the private key holder can effortlessly decode error-perturbed points while the public key holder fails.</li>
+          <li><strong>Error Boundaries:</strong> Shows the Voronoi cell radius and visualizes decoding failure when error vector e exceeds the cell boundary.</li>
+        </ul>
+      </div>
+
+      <div id="lab-ecb" class="tool-box" style="margin-top: 20px;">
+        <h3 style="margin-top: 0;">4.2 The ECB "Penguin" Flaw Visualizer</h3>
+        <p>
+          Electronic Codebook (ECB) mode encrypts identical 16-byte blocks into identical 16-byte ciphertext blocks: C_i = E_K(P_i). This simulator takes a 64x64 bitmap with high macroscopic patterns. Encrypting with ECB reveals the exact silhouette to an eavesdropper, disproving semantic security (IND-CPA). Switching to CBC or CTR mode introduces an initialization vector (IV), achieving complete pseudo-random diffusion.
+        </p>
+      </div>
+
+      <div id="lab-cbc" class="tool-box" style="margin-top: 20px;">
+        <h3 style="margin-top: 0;">4.3 CBC Bit-Flipping Exploit Simulator</h3>
+        <p>
+          In CBC mode decryption, plaintext block P_i = D_K(C_i) ⊕ C_{i-1}. Flipping bit j in ciphertext block C_{i-1} flips bit j in resulting plaintext P_i. The simulator stages a session cookie: <code>comment=hello;admin=0;user=guest</code>. Flipping a single bit in the preceding ciphertext block alters the decrypted text to <code>admin=1</code> without knowing the AES key, demonstrating the necessity of authenticated encryption (AEAD).
+        </p>
+      </div>
+
+      <div id="lab-dh" class="tool-box" style="margin-top: 20px;">
+        <h3 style="margin-top: 0;">4.4 Diffie-Hellman MITM Interceptor</h3>
+        <p>
+          Three-column protocol simulator (Alice, Mallorie, Bob). When Diffie-Hellman key exchange is unauthenticated, an active interceptor substitutes public keys (A' = g^m mod p and B' = g^m mod p), establishing two independent shared secrets K_{AM} and K_{MB}. Mallorie transparently decrypts, modifies, and re-encrypts all communications.
+        </p>
+      </div>
+
+      <div id="lab-tls" class="tool-box" style="margin-top: 20px;">
+        <h3 style="margin-top: 0;">4.5 TLS 1.3 Handshake & Packet Wire Inspector</h3>
+        <p>
+          Inspects the 1-RTT protocol exchange: ClientHello, ServerHello, EncryptedExtensions, Certificate, CertificateVerify, and Finished messages. Includes an interactive <strong>MITM Tamper Engine</strong>: flipping a single byte in the transit ciphertext triggers an immediate <code>AEAD_BAD_TAG</code> authentication abort, illustrating AEAD integrity enforcement.
+        </p>
+      </div>
+
+      <div id="lab-zkp" class="tool-box" style="margin-top: 20px;">
+        <h3 style="margin-top: 0;">4.6 Zero-Knowledge Proofs (ZKP) Playground</h3>
+        <p>
+          Interactive implementations of two classic zero-knowledge paradigms:
+        </p>
+        <ol>
+          <li><strong>Schnorr 3-Move Identification:</strong> Commitment (t = g^r mod p), Challenge (e), and Response (s = r + e·x mod p-1). Includes an Honest vs Imposter mode where an attacker guessing commitments is mathematically caught within 10 rounds.</li>
+          <li><strong>Graph 3-Coloring Interactive Rounds:</strong> Verifier queries random edges in a permuted graph coloring, verifying zero-knowledge completeness and soundness without revealing the coloring matrix.</li>
+        </ol>
+      </div>
+
+      <div id="lab-pqc" class="tool-box" style="margin-top: 20px;">
+        <h3 style="margin-top: 0;">4.7 Post-Quantum Lattice Studio (NIST FIPS 203 & 204)</h3>
+        <p>
+          Comprehensive laboratory implementing the mathematical mechanics of modern lattice cryptography:
+        </p>
+        <ul>
+          <li><strong>ML-KEM (FIPS 203 / Kyber):</strong> Step-by-step Ring-LWE key generation, encapsulation, and decapsulation over the quotient polynomial ring Z_q[X]/(X^n+1) with selectable moduli (q=17, q=257, q=3329) and degrees (n=4, 8, 16).</li>
+          <li><strong>Noise Amplification & Failure Threshold:</strong> Interactive slider scaling error variance to demonstrate why total noise must satisfy |e_{total}| < ⌊q/4⌋ for correct decryption, illustrating the exact mathematical boundary where lattice decryption failures occur.</li>
+          <li><strong>ML-DSA (FIPS 204 / Dilithium) Rejection Sampling:</strong> Visualizes the "Fiat-Shamir with Aborts" paradigm. Proves that without rejecting signatures whose norms approach the uniform boundary γ_1, the output vector z = y + c·s leaks the secret key through distribution skewing.</li>
+          <li><strong>2D CVP Basis Geometry:</strong> Interactive canvas demonstrating the Babai closest vector projection using private orthogonal bases versus public skewed bases.</li>
+        </ul>
+      </div>
+
+      <div id="lab-forensics" class="tool-box" style="margin-top: 20px;">
+        <h3 style="margin-top: 0;">4.8 Steganography & Digital Forensics Studio (/forensics)</h3>
+        <p>
+          Interactive spatial and structural forensics inspection workbench with custom carrier image upload, real-time bit-plane slicing, lossless PNG export, and file signature parsing:
+        </p>
+        <ul>
+          <li><strong>Custom Carrier Image Upload:</strong> Drag and drop or upload arbitrary user images (PNG, JPEG, WebP) or select from built-in procedural specimens (Emblem, Target, Spectrum) with automatic aspect-ratio-preserving canvas normalization.</li>
+          <li><strong>8-Bit Plane Slicer:</strong> Isolates individual bit planes (Bit 0 LSB up to Bit 7 MSB) across Red, Green, Blue, and Grayscale luminance channels, stripping high-order visual data to expose hidden watermarks, concealed monochrome payloads, and spatial noise anomalies.</li>
+          <li><strong>LSB Carrier Injection & Extraction:</strong> Injects secret text payloads into least-significant bits using a 32-bit magic header (<code>STEG</code>) and 32-bit length prefix, preventing premature EOF noise or garbage decoding. Features live extraction telemetry, an amplified visual difference mask, and mathematical fidelity metrics (Peak Signal-to-Noise Ratio PSNR in dB, Mean Squared Error MSE).</li>
+          <li><strong>Lossless Stego Export & Roundtrip Testing:</strong> Download the encoded image as a pristine 24-bit PNG with <code>Download Stego PNG</code>, and upload external stego files with <code>Extract from External File</code> to verify end-to-end extraction across machines.</li>
+          <li><strong>File Header & Magic Byte Inspector:</strong> Analyzes raw file signatures (JPEG, PNG, GIF, PDF, ZIP, ELF, PE) and automatically flags appended payloads and polyglot archive overlays trailing past official End-of-File (EOF) markers.</li>
+        </ul>
+      </div>
+
+      <div id="lab-pipeline" class="tool-box" style="margin-top: 20px;">
+        <h3 style="margin-top: 0;">4.9 Crypto Pipeline Studio (/pipeline)</h3>
+        <p>
+          Multi-stage sequential recipe workbench inspired by CyberChef, designed for modular deobfuscation and multi-layer cryptographic analysis:
+        </p>
+        <ul>
+          <li><strong>Sequential Processing Chain:</strong> Drag, drop, toggle, reorder, and configure arbitrary transformation stages. Output of stage <em>n</em> feeds as input to stage <em>n+1</em>.</li>
+          <li><strong>17+ Built-in Operations:</strong> Hex Decode/Encode, Base64 Decode/Encode, URL Decode/Encode, Caesar Shift, ROT13, Atbash, Reverse String, XOR with ASCII text key, XOR with Hex byte mask, Strip Whitespace, Uppercase, Lowercase, Shannon Entropy calculation, and Frequency Distribution analysis.</li>
+          <li><strong>Live Intermediate Stage Inspection:</strong> Click "Inspect Stages" to view intermediate textual states, execution errors, and dynamic Shannon entropy values per step.</li>
+          <li><strong>Curated Recipe Presets:</strong> Instant one-click loading for common real-world workflows: Defang & Decode, Caesar Bruteforce Stager, Multi-layer Stego Unmask, and Malicious Script Hex Deobfuscation.</li>
+          <li><strong>Recipe Portability:</strong> Import and export recipe chains as JSON files or clipboard strings for reproducible cryptanalysis.</li>
+        </ul>
+      </div>
+
+      <div id="lab-benchmark" class="tool-box" style="margin-top: 20px;">
+        <h3 style="margin-top: 0;">4.10 Cryptographic Benchmark & Avalanche Arena (/benchmark)</h3>
+        <p>
+          Live hardware performance evaluation and diffusion criterion visualization suite:
+        </p>
+        <ul>
+          <li><strong>Native Web Crypto Hardware Benchmarks:</strong> Executes genuine client-side CPU tests on AES-256-GCM, AES-128-CBC, SHA-256, SHA-512, HMAC-SHA256, RSA-OAEP 2048-bit key exchange, and Kyber-768 NTT polynomial butterfly lattice arithmetic. Reports operations per second, throughput in MB/s, and average operation latency.</li>
+          <li><strong>Interactive 128-Bit Strict Avalanche Criterion (SAC) Grid:</strong> A 16-byte (128-bit) block interactive visualizer. Users flip individual input bits and observe immediate non-linear bit avalanche flips across the output block.</li>
+          <li><strong>Shannon Diffusion Metrics:</strong> Calculates live Hamming distance between original and mutated states, output flip percentage (ideal SAC = 50.0%), and output Shannon entropy.</li>
+        </ul>
+      </div>
+
+      <div id="lab-enigma" class="tool-box" style="margin-top: 20px;">
+        <h3 style="margin-top: 0;">4.11 Mechanical Enigma Simulator</h3>
+        <p>
+          Authentic electromechanical simulation of the German military Enigma I / M3 machine:
+        </p>
+        <ul>
+          <li><strong>German QWERTZ Military Interface:</strong> Physical keyboard layout with authentic illuminated lampboard reacting to keystrokes.</li>
+          <li><strong>Steckerbrett Plugboard:</strong> Cross-connect letter pairs with patch cables; swaps are applied before entry into the entry wheel (ETW) and after return from the reflector.</li>
+          <li><strong>Rotor Stepping & Double-Stepping Anomaly:</strong> Faithfully models the mechanical pawl-and-ratchet mechanism, including the famous middle-rotor double-stepping anomaly where the middle rotor steps on both consecutive keystrokes when in notch position.</li>
+          <li><strong>Historical Rotor Library:</strong> Includes Rotors I through V with authentic internal wiring and turnover notches (Q, E, V, J, Z), plus Reflector B (Umkehrwalze B).</li>
+          <li><strong>10-Stage Signal Pathway:</strong> Visualizes the complete electrical circuit: Key → Plugboard → Entry Wheel → Rotor 3 → Rotor 2 → Rotor 1 → Reflector → Rotor 1 (reverse) → Rotor 2 (reverse) → Rotor 3 (reverse) → Plugboard → Lamp.</li>
+        </ul>
+      </div>
+
+      <div id="lab-flashcards" class="tool-box" style="margin-top: 20px;">
+        <h3 style="margin-top: 0;">4.12 Spaced-Repetition Study Flashcards (/flashcards)</h3>
+        <p>
+          Active recall study engine designed for rigorous mastery of mathematical theorems, cipher mechanics, and cryptanalytic proofs:
+        </p>
+        <ul>
+          <li><strong>185+ Rigorous Academic Cards:</strong> Deeply populated across all 8 curriculum tracks: Classical Ciphers, Encodings & Finite Fields, Symmetric Block & Stream Ciphers, Hashes & MACs, Asymmetric Cryptosystems, Post-Quantum Lattice Cryptography, Protocols & ZKP, and Number Theory.</li>
+          <li><strong>Complete Formal Notation:</strong> Back of cards include exact algebraic identities, modular arithmetic proofs, and vulnerability criteria (e.g. CBC bit-flipping algebraic formulations, RSA-CRT Bellcore equations, Shannon Perfect Secrecy conditions).</li>
+          <li><strong>3D Flip Animation & Active Recall:</strong> Keyboard-accessible self-assessment (Space to flip, 1 for "Needs Review", 2 for "Mastered", arrow keys for navigation).</li>
+          <li><strong>Persistent Curriculum Mastery Telemetry:</strong> Tracks mastered vs. review vs. new cards in local storage with live percentage mastery meters and instant search/track filtering.</li>
+        </ul>
+      </div>
+
+      <div id="lab-notebook" class="tool-box" style="margin-top: 20px;">
+        <h3 style="margin-top: 0;">4.13 Lab Notebook, Cryptanalyst Ranking & Verifiable Certificate (/notebook)</h3>
+        <p>
+          Researcher portfolio, competency verification, and academic certification engine:
+        </p>
+        <ul>
+          <li><strong>6-Tier Cryptanalyst Ranking System:</strong> Automatically advances learner rank based on verified curriculum completion and captured CTF flags:
+            <ol>
+              <li><em>Recruit Cryptanalyst (Tier I):</em> Classical ciphers and elementary encodings.</li>
+              <li><em>Cipher Operator (Tier II):</em> Polyalphabetic cryptanalysis and rotor mechanics.</li>
+              <li><em>Symmetric Specialist (Tier III):</em> AES Galois field arithmetic and padding oracles.</li>
+              <li><em>Number Theorist (Tier IV):</em> RSA factorization, CRT exploitation, and discrete logarithms.</li>
+              <li><em>Protocol Exploiter (Tier V):</em> TLS 1.3 handshakes, replay vulnerabilities, and zero-knowledge proofs.</li>
+              <li><em>Master Post-Quantum Cryptanalyst (Tier VI / Apex):</em> High-dimensional lattice reduction, Kyber/Dilithium NTT bounds.</li>
+            </ol>
+          </li>
+          <li><strong>Verifiable Academic Certificate:</strong> Formal certificate modal with institutional borders, candidate name, completion metrics, and a cryptographically calculated SHA-256 verification fingerprint over the candidate dossier. Includes a dedicated single-page print stylesheet for physical diploma generation.</li>
+          <li><strong>Curriculum Audit Checklist:</strong> Interactive tracking for all 75 lessons and 45+ CTF challenges with local persistence.</li>
+          <li><strong>Researcher Field Notes:</strong> Persistent Markdown laboratory log for documenting findings, equations, and audit steps.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- SECTION 5: AI ASSISTANT & DETECTOR -->
+    <section id="sec-detector">
+      <h2><span class="sec-num">5.1</span> Instant Format Auto-Detector & Inspector</h2>
+      <p>
+        Activated via <code>⌘K</code> or the top navigation bar, the detection engine evaluates raw input buffers against a battery of cryptographic and structural rules:
+      </p>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Format Target</th>
+              <th>Heuristic Rules & Patterns</th>
+              <th>Inspector Decoded Output</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Base64 / Base64URL</strong></td><td><code>^[A-Za-z0-9+/=_-]+$</code>, length % 4 == 0, character entropy</td><td>ASCII / UTF-8 string + raw hex byte breakdown</td></tr>
+            <tr><td><strong>Hexadecimal (Base 16)</strong></td><td><code>^[0-9a-fA-F]+$</code>, even length, key length detection (128/256-bit)</td><td>ASCII decode, binary bitstream, and Shannon entropy</td></tr>
+            <tr><td><strong>PEM Certificates & Keys</strong></td><td><code>-----BEGIN (CERTIFICATE|RSA PRIVATE KEY|PUBLIC KEY)-----</code></td><td>ASN.1 DER header inspection, key size, and format identification</td></tr>
+            <tr><td><strong>JSON Web Token (JWT)</strong></td><td>3 Base64URL segments separated by dots (<code>header.payload.sig</code>)</td><td>Decoded JSON header (<code>alg</code>, <code>typ</code>) and claims payload</td></tr>
+            <tr><td><strong>Bitcoin / Ethereum Addresses</strong></td><td>ETH: <code>0x[a-fA-F0-9]{40}</code>; BTC: Base58Check / Bech32 <code>bc1...</code></td><td>Network classification (EVM, Bitcoin Mainnet, SegWit)</td></tr>
+            <tr><td><strong>Password Hashes</strong></td><td>Bcrypt <code>$2a$...</code>, Argon2 <code>$argon2id$...</code>, PBKDF2 formats</td><td>Identifies cost factors, memory lanes, and salt boundaries</td></tr>
+            <tr><td><strong>Classical Ciphertexts</strong></td><td>Index of Coincidence (IC) & Chi-Square frequency tests</td><td>Detects likely Caesar shift key or polyalphabetic substitution</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="sec-solver">
+      <h2><span class="sec-num">5.2</span> Cryptographic Math Solver</h2>
+      <p>
+        The Assistant parses mathematical expressions directly in the search bar:
+      </p>
+      <ul>
+        <li><code>modpow(base, exp, mod)</code>: BigInt modular exponentiation via binary square-and-multiply.</li>
+        <li><code>gcd(a, b)</code> and <code>egcd(a, b)</code>: Extended Euclidean algorithm returning Bézout coefficients (x, y).</li>
+        <li><code>totient(n)</code>: Computes Euler's totient function φ(n).</li>
+        <li><code>factors(n)</code>: Prime factorization of composite integers.</li>
+        <li><code>entropy(text)</code>: Evaluates Shannon entropy in bits per character.</li>
+      </ul>
+    </section>
+
+    <!-- SECTION 6: CHALLENGES & STANDARDS -->
+    <section id="sec-challenges">
+      <h2><span class="sec-num">6.1</span> Challenge Arena (45+ Interactive CTF Cryptanalysis Puzzles)</h2>
+      <p>
+        Specimen incorporates an extensive cryptanalysis challenge arena featuring copyable intercepted artifacts, multi-stage hints, an embedded in-card Decryption Workbench (supporting Caesar, ROT13, Base64, Hex, Custom XOR, Modulo Exponentiation, and GCD Euclidean algorithms), and live vulnerability sandboxes across twelve operational domains:
+      </p>
+      <div class="card-grid">
+        <div class="spec-card">
+          <span class="spec-card-tag">Classical</span>
+          <div class="spec-card-title">Substitution & Transposition Analysis</div>
+          <div class="spec-card-body">Decrypt intercepted wartime dispatches using Index of Coincidence, Kasiski examination, digraph frequency patterns, Playfair matrices, Two-Time Pad crib dragging (C1 ⊕ C2), 2-rail zig-zag paths, and columnar keyword transposition matrices.</div>
+        </div>
+        <div class="spec-card">
+          <span class="spec-card-tag">Symmetric</span>
+          <div class="spec-card-title">Block Cipher & AEAD Exploits</div>
+          <div class="spec-card-body">Stage CBC bit-flipping payload injections, exploit ECB cut-and-paste block independence, query live Vaudenay padding oracles, break Double DES via Meet-in-the-Middle (2⁵⁷ operations), and execute the AES-GCM Forbidden Attack on reused nonces.</div>
+        </div>
+        <div class="spec-card">
+          <span class="spec-card-tag">Side-Channel</span>
+          <div class="spec-card-title">Fault Injection & Timing Analysis</div>
+          <div class="spec-card-body">Execute the 1996 Boneh-DeMillo-Lipton Bellcore laser fault injection attack on RSA-CRT via gcd(S' - S, N), and exploit non-constant-time byte comparison latency spikes to reconstruct secret authorization PINs.</div>
+        </div>
+        <div class="spec-card">
+          <span class="spec-card-tag">Blockchain</span>
+          <div class="spec-card-title">EVM & Merkle Tree Cryptography</div>
+          <div class="spec-card-body">Compute secp256k1 ECDSA malleable signatures s' = (n - s) mod n to forge transaction hashes without private keys, and enforce RFC 6962 0x00 leaf domain separation to defeat Merkle second pre-image inclusion proofs.</div>
+        </div>
+        <div class="spec-card">
+          <span class="spec-card-tag">Asymmetric</span>
+          <div class="spec-card-title">RSA Mathematical & Factoring Attacks</div>
+          <div class="spec-card-body">Execute small exponent (e=3) cube root attacks, Bleichenbacher PKCS#1 v1.5 low-exponent signature forgeries, Håstad's broadcast CRT reconstruction, Common Modulus recovery, batch GCD factorization of low-entropy IoT keys, Fermat factorization (p ≈ q), and Wiener's small private exponent d attack.</div>
+        </div>
+        <div class="spec-card">
+          <span class="spec-card-tag">Discrete Log</span>
+          <div class="spec-card-title">Diffie-Hellman & Subgroup Confinement</div>
+          <div class="spec-card-body">Confine shared secrets using small subgroup attacks (A' = -1), execute parameter injection MITM exploits, crack smooth group orders via the Pohlig-Hellman algorithm, and recover ECDSA private keys from nonce collisions (k-reuse).</div>
+        </div>
+        <div class="spec-card">
+          <span class="spec-card-tag">Integrity</span>
+          <div class="spec-card-title">Hash Length Extension & PRNGs</div>
+          <div class="spec-card-body">Exploit Merkle–Damgård state exposure to append unauthorized API parameters without key knowledge, calculate Birthday collision bounds, and predict Linear Congruential Generator (LCG) seeds.</div>
+        </div>
+        <div class="spec-card">
+          <span class="spec-card-tag">Post-Quantum</span>
+          <div class="spec-card-title">Lattice Reduction & Knapsack Sums</div>
+          <div class="spec-card-body">Decode noisy lattice vectors using Babai's nearest plane projection, calculate Kyber ML-KEM noise overflow failure boundaries (|e| ≥ ⌊q/4⌋), analyze Dilithium rejection sampling norm leakage, and solve Merkle-Hellman superincreasing knapsack subset sums.</div>
+        </div>
+        <div class="spec-card">
+          <span class="spec-card-tag">Homomorphic</span>
+          <div class="spec-card-title">Paillier Additive Homomorphism</div>
+          <div class="spec-card-body">Decrypt confidential electronic voting ballot tallies from the modular ciphertext product c_sum = (c1 · c2) mod n² without decrypting individual voter choices.</div>
+        </div>
+        <div class="spec-card">
+          <span class="spec-card-tag">Protocols</span>
+          <div class="spec-card-title">Wireless & Web Token Security</div>
+          <div class="spec-card-body">Exploit KRACK WPA2 4-Way Handshake nonce reinstallation resets in 802.11i, bypass JWT authentication via alg: none, and forge RS256 signatures via HMAC algorithm key confusion (CVE-2015-9235).</div>
+        </div>
+        <div class="spec-card">
+          <span class="spec-card-tag">Forensics</span>
+          <div class="spec-card-title">LSB Steganography & Polyglot Files</div>
+          <div class="spec-card-body">Extract concealed bitstreams from least significant image planes and detect appended ZIP/executable payloads hidden past PNG IEND chunk markers.</div>
+        </div>
+        <div class="spec-card">
+          <span class="spec-card-tag">Threshold</span>
+          <div class="spec-card-title">Shamir Secret Sharing & ZKPs</div>
+          <div class="spec-card-body">Reconstruct cryptocurrency custody vault master secrets over GF(257) using Lagrange interpolation, and prove Schnorr identification soundness limits against imposter provers.</div>
+        </div>
+      </div>
+
+      <div class="tool-box" style="margin-top: 24px;">
+        <h3 style="margin-top: 0;">6.1.1 Live Interactive Vaudenay CBC Padding Oracle Sandbox</h3>
+        <p>
+          An authentic software replica of Serge Vaudenay's 2002 chosen-ciphertext attack on PKCS#7 block cipher padding:
+        </p>
+        <ul>
+          <li><strong>Four Live Register Arrays:</strong> Displays the 16-byte original ciphertext block C₀, the mutated probe block C'₀, the recovered intermediate block I = D_K(C₁), and the final decrypted plaintext block P = I ⊕ C₀.</li>
+          <li><strong>Manual & Auto-Solve Exploit Engines:</strong> Step through candidate bytes (0x00 through 0xFF) one at a time or trigger automated solving with configurable delay (fast, realistic, throttled).</li>
+          <li><strong>Live HTTP Wire Diagnostics:</strong> Visualizes server oracle reactions: valid padding returns <code>HTTP 200 OK (Padding Valid)</code> while invalid padding yields <code>HTTP 500 Internal Server Error (Decryption Failed)</code>.</li>
+          <li><strong>Mathematical Proof & Circuit Mechanics:</strong> Explains how setting target padding byte <em>pad</em> forces C'₀[k] = I[k] ⊕ pad, enabling exact algebraic recovery of I[k] and subsequent plaintext deduction P[k] = I[k] ⊕ C₀[k] without ever recovering key K.</li>
+        </ul>
+      </div>
+
+      <div class="tool-box" style="margin-top: 20px;">
+        <h3 style="margin-top: 0;">6.1.2 Live Interactive Håstad Broadcast CRT Solver Sandbox</h3>
+        <p>
+          An interactive laboratory solver demonstrating Johan Håstad's 1985 lattice/CRT broadcast theorem:
+        </p>
+        <ul>
+          <li><strong>Configurable Secret & Moduli:</strong> Input an arbitrary secret message <em>m</em> and three distinct pairwise coprime RSA moduli (N₁, N₂, N₃) under public exponent e = 3.</li>
+          <li><strong>Step 1 — Multi-Recipient Broadcast Encryption:</strong> Computes the three intercepted modular ciphertexts c₁ ≡ m³ (mod N₁), c₂ ≡ m³ (mod N₂), and c₃ ≡ m³ (mod N₃).</li>
+          <li><strong>Step 2 — Chinese Remainder Theorem Reconstruction:</strong> Computes the compound product N = N₁ · N₂ · N₃, partial products M_i = N / N_i, and Bézout modular inverses M_i⁻¹ mod N_i via the Extended Euclidean Algorithm to assemble C ≡ m³ (mod N).</li>
+          <li><strong>Step 3 — Exact Integer Root Recovery:</strong> Demonstrates that because m &lt; N_i, m³ &lt; N₁·N₂·N₃. Therefore, no modular wrap-around occurs over the compound modulus N. Taking the exact real cube root ∛C over the integers ℤ immediately recovers the secret plaintext m without factoring any modulus.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="sec-standards">
+      <h2><span class="sec-num">6.2</span> Cryptographic Standards Matrix (NIST FIPS & RFCs)</h2>
+      <p>
+        The Standards Matrix outlines standard specifications, bit security levels, and quantum resilience:
+      </p>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Standard</th>
+              <th>Specification</th>
+              <th>Category</th>
+              <th>Security Level</th>
+              <th>Quantum Resistance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>AES-256-GCM</strong></td><td>NIST SP 800-38D</td><td>AEAD Block Cipher</td><td>256 bits</td><td>Safe (128-bit under Grover)</td></tr>
+            <tr><td><strong>ChaCha20-Poly1305</strong></td><td>RFC 8439</td><td>AEAD Stream Cipher</td><td>256 bits</td><td>Safe (128-bit under Grover)</td></tr>
+            <tr><td><strong>ML-KEM-768</strong></td><td>NIST FIPS 203 (Kyber)</td><td>Post-Quantum KEM</td><td>Category 3 (AES-192)</td><td>Fully Quantum-Safe (LWE)</td></tr>
+            <tr><td><strong>ML-DSA-65</strong></td><td>NIST FIPS 204 (Dilithium)</td><td>Post-Quantum Signature</td><td>Category 3 (AES-192)</td><td>Fully Quantum-Safe (Lattice)</td></tr>
+            <tr><td><strong>SLH-DSA</strong></td><td>NIST FIPS 205 (SPHINCS+)</td><td>Stateless Hash Signature</td><td>Category 1/3/5</td><td>Fully Quantum-Safe (Hash-based)</td></tr>
+            <tr><td><strong>Ed25519</strong></td><td>RFC 8032 / FIPS 186-5</td><td>Elliptic Curve Signature</td><td>128 bits</td><td>Vulnerable (Broken by Shor)</td></tr>
+            <tr><td><strong>RSA-3072 / 4096</strong></td><td>PKCS #1 v2.2 / RFC 8017</td><td>Asymmetric Encryption & Sig</td><td>128 / 140 bits</td><td>Vulnerable (Broken by Shor)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="sec-ui">
+      <h2><span class="sec-num">6.3</span> UI Ergonomics, Scratchpad & Keyboard Shortcuts</h2>
+      <p>
+        The user interface incorporates high-efficiency researcher tools:
+      </p>
+      <ul>
+        <li><strong>Minimalist Decluttered Top Bar:</strong> Clean, spacious layout grouping experimental simulation tools under a minimal <code>Labs ▾</code> popover menu.</li>
+        <li><strong>Universal Cryptographic Scratchpad:</strong> Persistent drawer on the right side allowing users to collect keys, intermediate hex arrays, and calculation outputs across routes.</li>
+        <li><strong>Keyboard Navigation:</strong>
+          <ul>
+            <li><code>⌘K</code> or <code>Ctrl+K</code>: Launch Global Assistant, Calculator & Format Inspector.</li>
+            <li><code>?</code>: Open Keyboard Shortcuts Cheat Sheet.</li>
+            <li><code>Esc</code>: Close modals, drawers, and active popovers.</li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+
+    <section id="sec-mobile">
+      <h2><span class="sec-num">6.4</span> Mobile & Smartphone Optimization</h2>
+      <p>
+        Specimen is engineered with comprehensive mobile responsiveness ensuring complete operational parity on smartphones (tested from 375px viewport width upwards):
+      </p>
+      <ul>
+        <li><strong>Segmented Lesson View Switcher:</strong> On mobile screens (<code>xl:hidden</code>), curriculum lessons provide a 1-tap switcher between <code>[ Lesson Theory ]</code> and <code>[ Interactive Lab ]</code>, maintaining live inputs without unmounting or requiring excessive vertical scrolling.</li>
+        <li><strong>Touch-Native Canvas Dragging:</strong> Interactive canvases like the 2D Lattice CVP Visualizer implement <code>onTouchStart</code>, <code>onTouchMove</code>, and <code>onTouchEnd</code> handlers alongside CSS <code>touch-none</code>, preventing accidental viewport scrolling while dragging target vectors.</li>
+        <li><strong>Safe-Area Inset Compliance:</strong> Floating docks (Mobile Nav and Scratchpad) incorporate <code>env(safe-area-inset-bottom)</code> to prevent overlap with modern device gesture indicators.</li>
+        <li><strong>Thumb-Friendly Touch Targets:</strong> All interactive buttons maintain a minimum 40px touch footprint with responsive multi-column wrapping (e.g., 4-column bit-plane selector).</li>
+      </ul>
+    </section>
+
+    <section id="sec-deployment">
+      <h2><span class="sec-num">6.5</span> Cloud Deployment & Firebase Hosting</h2>
+      <p>
+        Specimen is configured for zero-configuration, production-grade deployment to Google Firebase Hosting or static CDN edge networks:
+      </p>
+      <ul>
+        <li><strong>SPA Routing Rewrites:</strong> All client-side route requests (e.g. <code>/lessons/*</code>, <code>/attacks</code>, <code>/matrix</code>) rewrite seamlessly to <code>/index.html</code>.</li>
+        <li><strong>Direct Static Asset Resolution:</strong> Static resources such as <code>documentation.html</code>, icons, logos, and web manifests are served directly with optimal HTTP headers.</li>
+        <li><strong>Immutable Caching Strategy:</strong> Hashed bundles (JS, CSS, fonts) receive 1-year immutable caching (<code>max-age=31536000</code>), while entry points and service workers (<code>sw.js</code>) are configured with <code>no-cache, must-revalidate</code> to ensure instant client updates.</li>
+        <li><strong>Deployment Script:</strong> Execute <code>npm run firebase:deploy</code> to trigger a production Vite compilation and deploy to Firebase in a single automated step.</li>
+      </ul>
+    </section>
+  </main>
+
+  <script>
+    function isMobile() {
+      return window.innerWidth <= 900;
+    }
+
+    function toggleSidebar() {
+      if (isMobile()) {
+        document.body.classList.toggle('sidebar-mobile-open');
+      } else {
+        const isCollapsed = document.body.classList.toggle('sidebar-collapsed');
+        try {
+          localStorage.setItem('specimen_docs_collapsed', isCollapsed ? '1' : '0');
+        } catch (e) {}
+      }
+    }
+
+    function closeSidebarOnMobile() {
+      if (isMobile()) {
+        document.body.classList.remove('sidebar-mobile-open');
+      }
+    }
+
+    try {
+      if (!isMobile() && localStorage.getItem('specimen_docs_collapsed') === '1') {
+        document.body.classList.add('sidebar-collapsed');
+      }
+    } catch (e) {}
+
+    window.addEventListener('keydown', (e) => {
+      if ((e.key === '[' || (e.ctrlKey && e.key === 'b')) && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        toggleSidebar();
+      }
+    });
+
+    function filterNav() {
+      const q = document.getElementById('navFilter').value.toLowerCase();
+      const links = document.querySelectorAll('.nav-link');
+      links.forEach(link => {
+        const text = link.textContent.toLowerCase();
+        if (text.includes(q)) {
+          link.parentElement.style.display = '';
+        } else {
+          link.parentElement.style.display = 'none';
+        }
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute('id');
+            document.querySelectorAll('.nav-link').forEach(link => {
+              if (link.getAttribute('href') === '#' + id) {
+                link.classList.add('active');
+              } else {
+                link.classList.remove('active');
+              }
+            });
+          }
+        });
+      }, { rootMargin: '0px 0px -70% 0px' });
+
+      document.querySelectorAll('section[id], div[id]').forEach(sec => observer.observe(sec));
+    });
+  </script>
+</body>
+</html>

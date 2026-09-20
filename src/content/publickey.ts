@@ -1,0 +1,410 @@
+import type { Lesson } from "./types";
+
+export const publicKeyLessons: Lesson[] = [
+  {
+    id: "asymmetric-idea",
+    trackId: "publickey",
+    title: "The public-key idea",
+    subtitle: "Two keys, one hard mathematical problem",
+    formula: {
+      expr: "Public Key (pk) encrypts & verifies  |  Private Key (sk) decrypts & signs",
+      badge: "Diffie-Hellman-Merkle 1976",
+      note: "Asymmetric cryptography splits a key into an asymmetric pair: a public key that can be broadcast to the world, and a private key kept strictly secret. Built on one-way trapdoor mathematical functions.",
+    },
+    body: [
+      "In 1976, Whitfield Diffie and Martin Hellman (incorporating foundational concepts from Ralph Merkle) published their revolutionary paper 'New Directions in Cryptography', solving the millennia-old Key Distribution Problem that had crippled symmetric cryptography. Instead of requiring a fragile pre-shared secret key, asymmetric cryptography generates a mathematically paired set of keys: a Public Key (pk) that can be broadcast across untrusted channels to anyone in the world, and a Private Key (sk) known exclusively to its owner.",
+      "Trapdoor One-Way Functions: Public-key cryptography depends on mathematical operations that are trivial to compute in the forward direction, but computationally intractable to reverse unless one possesses a secret 'trapdoor' hint. For example: 1) Multiplying two 2048-bit prime numbers p and q to obtain modulus n = pq takes a microsecond; factoring n back into its constituent primes requires millions of CPU-years (the Integer Factorization Problem); 2) Exponentiating a number modulo a prime gᵃ mod p takes milliseconds; calculating the secret exponent a given the result requires infeasible computation (the Discrete Logarithm Problem).",
+      "The Necessity of Hybrid Encryption: Pure asymmetric encryption operations (such as modular exponentiation in RSA) are 1,000 to 10,000 times slower than hardware-accelerated symmetric ciphers like AES-GCM. Furthermore, asymmetric ciphers cannot directly encrypt data larger than their key modulus. Real-world systems universally employ Hybrid Encryption: asymmetric cryptography is executed during the initial handshake to exchange or derive an ephemeral 256-bit symmetric session key, and AES-256-GCM or ChaCha20-Poly1305 encrypts all subsequent application payload data at full hardware line speed.",
+    ],
+    keyPoints: [
+      "Solves the key distribution problem: public key is distributed openly without compromising secrecy.",
+      "Trapdoor one-way functions: easy forward, computationally impossible to reverse without the secret trapdoor.",
+      "Hybrid encryption: public-key cryptography negotiates a 256-bit symmetric key; symmetric ciphers encrypt bulk data.",
+      "Computational hardness: security rests on hard mathematical problems (factoring, discrete logs, lattice shortest vectors).",
+    ],
+    pitfalls: [
+      "Attempting to encrypt large files directly with RSA: RSA block size is limited by the modulus length (e.g. max 245 bytes for 2048-bit RSA with OAEP padding) and is orders of magnitude slower than AES.",
+      "Assuming mathematical hardness is mathematically proven: public-key algorithms are based on problems believed to be computationally hard (P ≠ NP conjecture), not proven unconditionally secure.",
+    ],
+    workedExample: {
+      title: "Hybrid Encryption Architecture Flow",
+      steps: [
+        { label: "1. Keypair Publishing", detail: "Bob publishes Public Key PK_Bob and protects Private Key SK_Bob." },
+        { label: "2. Generate Ephemeral Key", detail: "Alice generates a random 256-bit symmetric session key K_session = CSPRNG()." },
+        { label: "3. Encrypt Key & Bulk Data", detail: "Alice encrypts K_session using Bob's public key: C_key = RSA_OAEP_Encrypt(PK_Bob, K_session). Alice encrypts a 10 GB file using AES-256-GCM(K_session, Data)." },
+        { label: "4. Bob Decrypts", detail: "Bob recovers K_session = RSA_OAEP_Decrypt(SK_Bob, C_key) in 1 ms, then streams the 10 GB file through hardware AES-NI at 2 GB/s." },
+      ],
+      outcome: "Combines the key-sharing convenience of public-key crypto with the gigabit speed of symmetric ciphers.",
+    },
+    references: [
+      {
+        title: "Whitfield Diffie & Martin Hellman: New Directions in Cryptography (1976)",
+        source: "IEEE Transactions on Information Theory",
+        url: "https://ee.stanford.edu/~hellman/publications/pub024.pdf",
+        description: "The seminal foundational paper that introduced public-key cryptography and digital signatures to the world.",
+        type: "paper",
+      },
+      {
+        title: "Dan Boneh & Victor Shoup: A Graduate Course in Applied Cryptography (Chapter 10)",
+        source: "Stanford University",
+        url: "https://toc.cryptobook.us/",
+        description: "Comprehensive formal mathematical analysis of public-key trapdoor permutations and hybrid encryption.",
+        type: "book",
+      },
+    ],
+    toolId: "diffie-hellman",
+    glossary: [
+      { term: "Trapdoor Function", def: "A function that is easy to compute in one direction, but infeasible to invert without special knowledge (the trapdoor)." },
+      { term: "Hybrid Encryption", def: "A protocol combining asymmetric cryptography for key agreement with symmetric ciphers for high-speed bulk data encryption." },
+    ],
+  },
+  {
+    id: "diffie-hellman",
+    trackId: "publickey",
+    title: "Diffie–Hellman key exchange",
+    subtitle: "Two strangers agree a secret in public",
+    formula: {
+      expr: "Alice: A = gᵃ mod p  |  Bob: B = gᵇ mod p  |  Shared Secret: s = Bᵃ = Aᵇ = g^(ab) mod p",
+      badge: "Discrete Logarithm",
+      note: "Alice and Bob agree on public prime p and base generator g. Eve observes p, g, A, and B, but cannot compute s without solving the Discrete Logarithm Problem.",
+    },
+    body: [
+      "Published in 1976 by Whitfield Diffie and Martin Hellman, Diffie-Hellman Key Exchange (DH) was the first practical cryptographic protocol that allowed two completely untrusted parties to establish a shared secret over an insecure, publicly monitored network without having any prior secret credentials.",
+      "The Mathematical Elegance: Alice and Bob publicly agree on a large prime modulus p (e.g. 2048 or 4096 bits) and a generator element g of the cyclic group ℤ_p*. Alice generates a private integer a and transmits public key A = gᵃ mod p. Bob generates a private integer b and transmits public key B = gᵇ mod p. Alice takes Bob's public value B and computes shared secret s = Bᵃ = (gᵇ)ᵃ = g^(ab) mod p. Bob takes Alice's public value A and computes s = Aᵇ = (gᵃ)ᵇ = g^(ab) mod p. Both compute the exact same value s! An eavesdropper observing the public channel learns p, g, A, and B, but calculating s requires solving the Computational Diffie-Hellman (CDH) problem, believed to be computationally equivalent to the Discrete Logarithm Problem (DLP).",
+      "Vulnerability: Machine-in-the-Middle (MitM). Classic Diffie-Hellman provides zero sender authentication. An active adversary (Mallory) intercepting packets on the network can execute two independent Diffie-Hellman exchanges: one with Alice and one with Bob, transparently intercepting, decrypting, and re-encrypting all traffic. To prevent this, real-world protocols sign the public ephemeral keys using digital certificates (e.g. Ephemeral Elliptic-Curve Diffie-Hellman, ECDHE, in TLS 1.3).",
+      "Small Subgroup Confinement Attacks: If an attacker sends an invalid public key A' chosen to belong to a tiny subgroup of order 2 (such as A' = p - 1 ≡ -1 mod p), the computed secret s = (A')ᵇ = (-1)ᵇ mod p collapses to only two possible values (+1 or -1). Production implementations strictly validate that received public keys lie within the valid high-order prime subgroup.",
+    ],
+    keyPoints: [
+      "Key agreement protocol, not an encryption or signature cipher: outputs an unguessable shared symmetric secret.",
+      "Security rests on the difficulty of the Discrete Logarithm Problem in cyclic groups.",
+      "Unauthenticated DH is completely vulnerable to active Machine-in-the-Middle (MitM) attacks.",
+      "Ephemeral Diffie-Hellman (DHE / ECDHE) generates fresh random keys per session, providing Perfect Forward Secrecy (PFS).",
+    ],
+    pitfalls: [
+      "Using static (fixed) DH keys: if the long-term private key is compromised years later, an adversary who recorded historical network traffic can decrypt all past sessions.",
+      "Using small primes (e.g. 512-bit or 1024-bit primes): the Logjam attack proved that state actors precomputed discrete log tables for common 1024-bit primes used in TLS.",
+    ],
+    workedExample: {
+      title: "Diffie-Hellman Exchange with Small Numbers (p = 23, g = 5)",
+      steps: [
+        { label: "1. Public Parameters", detail: "Prime p = 23, Generator g = 5 (primitive root modulo 23)." },
+        { label: "2. Alice Chooses a", detail: "Alice picks private a = 6. Computes A = 5⁶ mod 23 = 15625 mod 23 = 8. Sends A=8 to Bob." },
+        { label: "3. Bob Chooses b", detail: "Bob picks private b = 15. Computes B = 5¹⁵ mod 23 = 19. Sends B=19 to Alice." },
+        { label: "4. Shared Secret Computation", detail: "Alice computes s = 19⁶ mod 23 = 2. Bob computes s = 8¹⁵ mod 23 = 2. Both arrive at shared secret s = 2!" },
+      ],
+      outcome: "Eavesdropper sees p=23, g=5, A=8, B=19, but cannot easily find s=2.",
+    },
+    references: [
+      {
+        title: "RFC 2631: Diffie-Hellman Key Agreement Method",
+        source: "IETF RFC",
+        url: "https://www.ietf.org/rfc/rfc2631.txt",
+        description: "Standard specifying mathematical parameters, validation, and key derivation for Diffie-Hellman.",
+        type: "standard",
+      },
+      {
+        title: "WeakDH.org: Imperfect Forward Secrecy (The Logjam Attack, 2015)",
+        source: "Academic Research Consortium",
+        url: "https://weakdh.org/",
+        description: "Paper exposing vulnerabilities in 1024-bit discrete log groups and TLS export ciphers.",
+        type: "paper",
+      },
+    ],
+    toolId: "dh-mitm",
+    glossary: [
+      { term: "Discrete Logarithm Problem", def: "The problem of finding an integer k such that gᵏ ≡ h (mod p), given public elements g and h." },
+      { term: "Perfect Forward Secrecy (PFS)", def: "A feature of key-agreement protocols that guarantees that session keys will not be compromised even if long-term private keys are compromised." },
+    ],
+  },
+  {
+    id: "rsa",
+    trackId: "publickey",
+    title: "RSA",
+    subtitle: "Keys from two primes and a modular inverse",
+    formula: {
+      expr: "n = p · q,  e · d ≡ 1 mod φ(n),  c = mᵉ mod n,  m = cᵈ mod n",
+      badge: "Rivest-Shamir-Adleman 1977",
+      note: "Public Key: (e, n). Private Key: d. Euler's Totient φ(n) = (p − 1)(q − 1). Factoring n into p and q immediately reveals φ(n) and the private key d.",
+    },
+    body: [
+      "Invented in 1977 at MIT by Ron Rivest, Adi Shamir, and Leonard Adleman, RSA was the first public-key cryptosystem capable of providing both encryption and digital signatures. It remains one of the most widely deployed asymmetric algorithms in computing history.",
+      "The Mathematical Engine: Key generation begins by selecting two large distinct prime numbers p and q (typically 1024 or 2048 bits each). Compute composite modulus n = pq and Euler's totient φ(n) = (p − 1)(q − 1). Choose a public exponent e that is coprime to φ(n), meaning gcd(e, φ(n)) = 1 (almost universally e = 65537 = 2¹⁶ + 1, chosen because it contains only two binary 1-bits, enabling ultra-fast square-and-multiply exponentiation while defeating low-exponent attacks). Compute private exponent d as the modular multiplicative inverse of e modulo φ(n) using the Extended Euclidean Algorithm: (e · d) ≡ 1 mod φ(n).",
+      "Why Decryption Works (Euler's Theorem): By definition, ed = k · φ(n) + 1 for some integer k. For any message m coprime to n, Euler's totient theorem states that m^φ(n) ≡ 1 mod n. Therefore: cᵈ = (mᵉ)ᵈ = m^(ed) = m^(k·φ(n) + 1) = (m^φ(n))ᵏ · m ≡ 1ᵏ · m ≡ m mod n. The plaintext message m is decrypted with exact mathematical precision!",
+      "Textbook RSA is Strictly Insecure: Naive 'textbook' RSA (c = mᵉ mod n) is completely insecure in production: 1) Deterministic: encrypting the same message always yields the same ciphertext; 2) Multiplicative Homomorphism: multiplying two ciphertexts multiplies the underlying plaintexts: c₁ · c₂ = (m₁ · m₂)ᵉ mod n, allowing active ciphertext modification; 3) Small Exponent Attacks: if m < ∛n and e = 3, c = m³ over the integers, allowing an attacker to take the ordinary real cube root without factoring n. Modern RSA implementations strictly mandate randomized padding: RSA-OAEP (Optimal Asymmetric Encryption Padding) for encryption and RSA-PSS (Probabilistic Signature Scheme) for digital signatures according to PKCS #1 v2.2 (RFC 8017).",
+    ],
+    keyPoints: [
+      "Security rests on the computational difficulty of the Integer Factorization Problem.",
+      "Public key is (e, n); private key is d = e⁻¹ mod φ(n). Modulus n must be at least 2048 bits.",
+      "Public exponent e = 65537 balances high encryption speed with security against small-exponent attacks.",
+      "NEVER use textbook RSA: always mandate RSA-OAEP for encryption and RSA-PSS for signatures.",
+    ],
+    pitfalls: [
+      "Bleichenbacher's Million Message Attack (1998): Servers returning distinct error codes for invalid PKCS #1 v1.5 padding act as a padding oracle that decrypts ciphertexts without the private key.",
+      "Selecting p and q too close together (|p − q| < 2n^(1/4)): Fermat's factorization algorithm factors n in milliseconds.",
+      "Wiener's Attack: If private exponent d < (1/3)n^(1/4), continuous fraction expansion of e/n recovers d in polynomial time.",
+    ],
+    workedExample: {
+      title: "RSA Key Generation and Encryption with Small Primes",
+      steps: [
+        { label: "1. Choose Primes", detail: "p = 61, q = 53. Modulus n = 61 × 53 = 3233." },
+        { label: "2. Compute Totient", detail: "φ(n) = (61 − 1)(53 − 1) = 60 × 52 = 3120." },
+        { label: "3. Public Exponent e", detail: "Choose e = 17 (gcd(17, 3120) = 1)." },
+        { label: "4. Private Exponent d", detail: "Compute d = 17⁻¹ mod 3120 = 2753 (since 17 × 2753 = 46801 = (15 × 3120) + 1)." },
+        { label: "5. Encrypt Message m=65", detail: "c = 65¹⁷ mod 3233 = 2790." },
+        { label: "6. Decrypt Ciphertext c=2790", detail: "m = 2790²⁷⁵³ mod 3233 = 65. Perfectly recovered!" },
+      ],
+      outcome: "Full RSA mathematical loop verified reversible.",
+    },
+    references: [
+      {
+        title: "RFC 8017: PKCS #1 v2.2: RSA Cryptography Specifications",
+        source: "IETF RFC",
+        url: "https://www.ietf.org/rfc/rfc8017.txt",
+        description: "The authoritative standard defining RSA-OAEP encryption and RSA-PSS signatures.",
+        type: "standard",
+      },
+      {
+        title: "Rivest, Shamir & Adleman: A Method for Obtaining Digital Signatures (1978)",
+        source: "Communications of the ACM",
+        url: "https://doi.org/10.1145/359340.359342",
+        description: "The original paper introducing the RSA public-key algorithm.",
+        type: "paper",
+      },
+      {
+        title: "Daniel Bleichenbacher: Chosen Ciphertext Attacks Against Protocols Based on PKCS #1 (Crypto '98)",
+        source: "IACR Crypto",
+        url: "https://www.iacr.org/archive/crypto98/14620001.pdf",
+        description: "The famous paper demonstrating the adaptive chosen-ciphertext attack on RSA PKCS #1 v1.5 padding.",
+        type: "paper",
+      },
+    ],
+    toolId: "rsa-suite",
+    glossary: [
+      { term: "Euler's Totient φ(n)", def: "The number of positive integers less than n that are relatively prime to n. For primes p and q, φ(pq) = (p-1)(q-1)." },
+      { term: "RSA-OAEP", def: "Optimal Asymmetric Encryption Padding: a randomized padding scheme providing semantic security against chosen-ciphertext attacks." },
+    ],
+  },
+  {
+    id: "ecc",
+    trackId: "publickey",
+    title: "Elliptic-curve cryptography",
+    subtitle: "Small keys, same strength",
+    formula: {
+      expr: "y² = x³ + ax + b mod p  |  Public Key Q = d · G  (Scalar Multiplication)",
+      badge: "ECDLP",
+      note: "Points on an elliptic curve form an abelian group. Given generator point G and public point Q, calculating the scalar multiplier d is the Elliptic Curve Discrete Logarithm Problem (ECDLP).",
+    },
+    body: [
+      "Proposed independently by Neal Koblitz and Victor Miller in 1985, Elliptic Curve Cryptography (ECC) represents the modern state-of-the-art in asymmetric cryptography. Instead of modular arithmetic over integers, ECC operates on points along an algebraic curve defined by the short Weierstrass equation y² = x³ + ax + b over a finite prime field 𝔽_p (with 4a³ + 27b² ≠ 0 to eliminate singular cusp/self-intersection points).",
+      "The Chord-and-Tangent Group Law: Points on the curve, together with a virtual 'Point at Infinity' (𝒪, which acts as the group identity element), form an abelian group under geometric addition: 1) Point Addition P(x₁, y₁) + Q(x₂, y₂): draw a straight line through P and Q; it intersects the curve at a third point R'; reflecting R' across the x-axis gives P + Q = R(x₃, y₃). The slope is λ = (y₂ − y₁) / (x₂ − x₁) mod p; 2) Point Doubling 2P: draw the tangent line to the curve at point P with slope λ = (3x₁² + a) / (2y₁) mod p. In both cases, the resulting coordinates are: x₃ = λ² − x₁ − x₂ mod p, and y₃ = λ(x₁ − x₃) − y₁ mod p.",
+      "The Efficiency Revolution: In RSA or finite-field Diffie-Hellman, the sub-exponential General Number Field Sieve (GNFS) algorithm allows attackers to factor numbers faster than brute force. In contrast, for properly designed elliptic curves, the best known attack is Pollard's Rho, which requires fully exponential time: O(√n). Consequently, a 256-bit ECC key provides the equivalent cryptographic security of a massive 3072-bit RSA key! This dramatic reduction in key size reduces battery consumption, network bandwidth, and computational latency by orders of magnitude.",
+      "Modern Edwards Curves: While standard NIST curves (like P-256 / secp256r1) are widely deployed, modern high-assurance systems favor Twisted Edwards Curves designed by Daniel J. Bernstein: Curve25519 (X25519 for key exchange, Ed25519 for signatures). Curve25519 provides 'complete addition formulas'—the exact same mathematical formula works for point addition, point doubling, and the identity point, eliminating conditional branching in CPU code and guaranteeing complete immunity to side-channel timing attacks.",
+    ],
+    keyPoints: [
+      "Exponential hardness: 256-bit ECC matches the security of 3072-bit RSA.",
+      "Group law: Geometric chord-and-tangent addition forms an abelian group over finite fields.",
+      "ECDSA fatal flaw: Reusing or leaking the signature nonce k immediately leaks the private key.",
+      "Ed25519 and X25519 (RFC 7748 / RFC 8032) are the preferred modern standards.",
+    ],
+    pitfalls: [
+      "Reusing an ECDSA nonce k: In 2010, the fail0verflow group cracked the Sony PlayStation 3 master code-signing key because Sony used a constant nonce k across all signatures!",
+      "Invalid Curve Attacks: Failing to verify that a received public point (x, y) actually satisfies the curve equation y² = x³ + ax + b mod p allows attackers to force computation onto weak small-order curves and extract private keys.",
+    ],
+    workedExample: {
+      title: "How Sony PS3 Master Key was Extracted via ECDSA Nonce Reuse",
+      steps: [
+        { label: "1. ECDSA Signature Formula", detail: "Signature s = k⁻¹ · (z + r · d) mod n, where z is message hash, d is private key, k is random nonce." },
+        { label: "2. Two Signatures with Same k", detail: "Signatures (r, s₁) on message z₁ and (r, s₂) on message z₂ share identical r and k." },
+        { label: "3. Solve for Nonce k", detail: "Subtract signatures: s₁ − s₂ = k⁻¹ · (z₁ − z₂) mod n → k = (z₁ − z₂) · (s₁ − s₂)⁻¹ mod n." },
+        { label: "4. Solve for Private Key d", detail: "Once k is known: d = r⁻¹ · (s₁ · k − z₁) mod n. The entire master private key is instantly recovered!" },
+      ],
+      outcome: "Sony's entire root private signing key was publicly compromised in seconds.",
+    },
+    references: [
+      {
+        title: "RFC 7748: Elliptic Curves for Security (Curve25519 and Curve448)",
+        source: "IETF RFC",
+        url: "https://www.ietf.org/rfc/rfc7748.txt",
+        description: "The international standard specifying X25519 and X448 Diffie-Hellman key exchange.",
+        type: "standard",
+      },
+      {
+        title: "RFC 8032: Edwards-Curve Digital Signature Algorithm (Ed25519)",
+        source: "IETF RFC",
+        url: "https://www.ietf.org/rfc/rfc8032.txt",
+        description: "Official specification for Ed25519 deterministic signatures.",
+        type: "standard",
+      },
+    ],
+    toolId: "ecc-point",
+    glossary: [
+      { term: "ECDLP", def: "Elliptic Curve Discrete Logarithm Problem: the problem of finding scalar multiplier d given generator point G and public point Q = d · G." },
+      { term: "Scalar Multiplication", def: "The operation of adding an elliptic curve point to itself d times (Q = d · G) using double-and-add algorithms." },
+    ],
+  },
+  {
+    id: "signatures",
+    trackId: "publickey",
+    title: "Digital signatures",
+    subtitle: "Integrity, authenticity and non-repudiation",
+    formula: {
+      expr: "σ = Sign(sk, H(m))  |  Verify(pk, m, σ) ∈ {True, False}",
+      badge: "Non-Repudiation",
+      note: "Unlike symmetric MACs, digital signatures are publicly verifiable: anyone holding the public key can verify the signature, but only the holder of the private key could have generated it.",
+    },
+    body: [
+      "A Digital Signature is the cryptographic counterpart of a handwritten signature, but backed by mathematical non-repudiation: it binds a specific identity (represented by an asymmetric public key) to an exact, unalterable digital document.",
+      "Signatures vs. MACs (The Asymmetric Distinction): In a symmetric MAC (such as HMAC), Alice and Bob share the exact same key K. While Bob can verify that a message came from Alice, Bob could have equally forged the message himself! Bob cannot prove to a third party (like a judge in a court of law) that Alice authored the message. Digital signatures solve this: only Alice holds her private signing key sk, but the whole world holds her public verification key pk. Alice cannot repudiate having signed the document.",
+      "The Hash-and-Sign Paradigm: Asymmetric signature operations cannot sign large files directly due to computational latency and mathematical payload limits. Instead, the document m is first hashed with a collision-resistant cryptographic hash function (like SHA-256 or SHA-512), and the private key signs the 256-bit digest: σ = Sign(sk, H(m)). Crucial Security Implication: The security of the signature depends 100% on the collision resistance of the hash! If an attacker can find a collision H(m₁) = H(m₂), a signature on a harmless document m₁ is mathematically valid on a fraudulent contract m₂.",
+      "Leading Signature Standards: 1) Ed25519 (RFC 8032): high-speed, deterministic, constant-time signatures over Curve25519 (deriving nonce r = SHA-512(sk ‖ m), permanently eliminating the random nonce reuse flaw that destroyed Sony PS3); 2) ECDSA (NIST FIPS 186-5): widely used in Bitcoin (secp256k1) and TLS certificates; 3) RSA-PSS (PKCS #1 v2.2): provably secure probabilistic signature padding.",
+    ],
+    keyPoints: [
+      "Provides non-repudiation: only the private key holder could have generated the signature.",
+      "Hash-and-Sign: signatures sign the hash H(m); a collision in H produces an instant signature forgery.",
+      "Ed25519 is deterministic: derives nonce from private key and message, preventing RNG failures.",
+      "Verify before parsing: always verify signatures before deserializing or executing untrusted payloads.",
+    ],
+    pitfalls: [
+      "Using broken hash algorithms (MD5 or SHA-1) in signature generation: allowed the Flame cyber-espionage malware to forge legitimate Microsoft Windows Update signatures.",
+      "Parsing complex JSON, XML, or ASN.1 structures before signature validation, exposing applications to remote code execution.",
+    ],
+    workedExample: {
+      title: "Verifying an Ed25519 Signature",
+      steps: [
+        { label: "1. Keypair & Message", detail: "Signer has public key A and private key k. Message m = 'Release v1.0'." },
+        { label: "2. Deterministic Nonce", detail: "Ed25519 derives nonce r = SHA-512(k_seed ‖ m) (eliminates random number failure!). Compute point R = r · B." },
+        { label: "3. Scalar Calculation", detail: "Compute challenge e = SHA-512(R ‖ A ‖ m) mod L. Compute scalar S = (r + e · a) mod L." },
+        { label: "4. Verification Equation", detail: "Verifier checks whether S · B = R + e · A. If the points match, the signature is 100% genuine." },
+      ],
+      outcome: "Guarantees that message m was signed by the owner of public key A without tampering.",
+    },
+    references: [
+      {
+        title: "NIST FIPS 186-5: Digital Signature Standard (DSS)",
+        source: "NIST CSRC",
+        url: "https://doi.org/10.6028/NIST.FIPS.186-5",
+        description: "The federal standard specifying RSA, DSA, and ECDSA signature schemes.",
+        type: "standard",
+      },
+    ],
+    toolId: "rsa-suite",
+    glossary: [
+      { term: "Digital Signature", def: "A mathematical scheme for demonstrating the authenticity of digital messages or documents." },
+      { term: "Non-repudiation", def: "The assurance that someone cannot deny the validity of something (such as the authorship of a signed statement)." },
+    ],
+  },
+  {
+    id: "pki-tls",
+    trackId: "publickey",
+    title: "Certificates, PKI and TLS",
+    subtitle: "How trust is delegated on the internet",
+    formula: {
+      expr: "Certificate = Identity + Public Key + CA Signature (X.509 Standard)",
+      badge: "RFC 8446 (TLS 1.3)",
+      note: "Public Key Infrastructure (PKI) solves identity binding. TLS 1.3 authenticates servers via X.509 certificate chains, performs 1-RTT ECDHE key agreement, and encrypts with AEAD.",
+    },
+    body: [
+      "Public-key cryptography enables private communication with strangers, but raises an existential question: How do you know a public key actually belongs to 'google.com' and not an adversary? Public Key Infrastructure (PKI) solves this by delegating trust to Certificate Authorities (CAs).",
+      "An X.509 digital certificate is a signed document binding a subject domain name to a public key. Your operating system and browser ship with a pre-installed 'Root Store' containing ~150 trusted root CAs. When connecting to a website, the server presents a certificate chain verifying that an intermediary CA signed by a trusted root vouched for the domain's public key.",
+      "Certificate Transparency (RFC 6962): Historically, rogue or compromised CAs (such as DigiNotar in 2011) secretly issued fraudulent certificates for major domains without detection. Certificate Transparency solved this by requiring all publicly trusted TLS certificates to be logged in public, append-only, cryptographically auditable Merkle Trees. Web browsers reject any certificate that lacks cryptographic Signed Certificate Timestamps (SCTs) proving it was published in public logs.",
+      "TLS 1.3 (RFC 8446): The latest evolution of the Transport Layer Security protocol overhauled web security by completing the handshake in just 1 Round Trip Time (1-RTT) and permanently eliminating obsolete, vulnerable algorithms: static RSA key exchange (which lacked forward secrecy), CBC-mode ciphers, RC4, 3DES, and custom compression (which caused the CRIME attack). Every TLS 1.3 connection mandates ephemeral Diffie-Hellman (ECDHE) paired with AEAD encryption (AES-GCM or ChaCha20-Poly1305).",
+    ],
+    keyPoints: [
+      "Certificates bind cryptographic public keys to real-world domain identities.",
+      "Certificate Transparency (RFC 6962) audits CAs by requiring all issued certificates to be logged in public Merkle trees.",
+      "TLS 1.3 mandates Forward Secrecy (PFS) and AEAD ciphers exclusively.",
+      "The 1-RTT handshake derives session keys using the HKDF key derivation schedule.",
+    ],
+    pitfalls: [
+      "Disabling certificate verification in code (e.g. `rejectUnauthorized: false` in Node.js or `verify=False` in Python requests) to bypass local testing errors: leaves production systems wide open to MitM attacks.",
+      "Missing Certificate Transparency monitoring, allowing rogue CAs to issue spoofed certificates unnoticed.",
+    ],
+    workedExample: {
+      title: "TLS 1.3 1-RTT Handshake Trace",
+      steps: [
+        { label: "1. ClientHello", detail: "Client sends supported ciphers (e.g. TLS_AES_256_GCM_SHA384) + Client Key Share (ECDHE public point X_c)." },
+        { label: "2. ServerHello", detail: "Server selects cipher + sends Server Key Share (ECDHE public point X_s). Both sides compute shared secret immediately!" },
+        { label: "3. Encrypted Extensions & Cert", detail: "All remaining packets are encrypted! Server sends X.509 Certificate and CertificateVerify signature." },
+        { label: "4. Finished & Data", detail: "Server sends HMAC-based Finished tag. Client verifies, sends Finished tag, and begins sending encrypted HTTP/2 data in 1 RTT." },
+      ],
+      outcome: "Full mutual authentication and session key agreement established in a single round trip.",
+    },
+    references: [
+      {
+        title: "RFC 8446: The Transport Layer Security (TLS) Protocol Version 1.3",
+        source: "IETF RFC",
+        url: "https://www.ietf.org/rfc/rfc8446.txt",
+        description: "The authoritative specification of modern internet security, handshake states, and cryptographic constraints.",
+        type: "standard",
+      },
+      {
+        title: "RFC 5280: Internet X.509 Public Key Infrastructure Certificate Profile",
+        source: "IETF RFC",
+        url: "https://www.ietf.org/rfc/rfc5280.txt",
+        description: "The standard defining digital certificates, certificate revocation lists (CRLs), and path validation.",
+        type: "standard",
+      },
+    ],
+    toolId: "tls-handshake",
+    glossary: [
+      { term: "Certificate Authority (CA)", def: "An organization trusted to digitally sign digital certificates binding identities to public keys." },
+      { term: "Forward Secrecy", def: "The property ensuring that compromise of long-term server private keys does not compromise past session traffic." },
+    ],
+  },
+  {
+    id: "post-quantum",
+    trackId: "publickey",
+    title: "Post-quantum cryptography overview",
+    subtitle: "What Shor's algorithm actually threatens",
+    formula: {
+      expr: "Shor's Algorithm: O((log N)³) polynomial time break of RSA & ECC on Quantum Computers",
+      badge: "NIST PQC 2024",
+      note: "Shor's quantum algorithm solves prime factoring and discrete logarithms in polynomial time. Grover's algorithm provides quadratic speedup (reducing symmetric security by half).",
+    },
+    body: [
+      "In 1994, American mathematician Peter Shor formulated a quantum algorithm that completely changes the computational complexity of public-key cryptography. While classical computers require sub-exponential time (via the Number Field Sieve) to factor integers or compute discrete logs, Shor's algorithm running on a sufficiently large, fault-tolerant quantum computer solves both problems in polynomial time O((log N)³).",
+      "The Implication: When Cryptanalytically Relevant Quantum Computers (CRQCs) are built, every RSA key, Diffie-Hellman exchange, and Elliptic Curve signature (ECDSA, Ed25519) deployed across the internet will be broken simultaneously. Conversely, symmetric ciphers (AES-256) and hash functions (SHA-256) only suffer Grover's algorithm speedup (which reduces security from 256 bits to 128 bits, still completely beyond brute force).",
+      "The 'Harvest Now, Decrypt Later' Threat: Nation-state adversaries are currently intercepting and storing massive volumes of encrypted military, intelligence, and financial traffic today. When a quantum computer emerges, they will decrypt decades of historical records. To preempt this, NIST standardized quantum-resistant replacements in August 2024: ML-KEM (FIPS 203) for key exchange and ML-DSA (FIPS 204) for digital signatures.",
+    ],
+    keyPoints: [
+      "Shor's algorithm breaks RSA, Diffie-Hellman, and Elliptic Curves in polynomial time.",
+      "Symmetric ciphers (AES-256) and hashes (SHA-256) remain secure against quantum attacks.",
+      "'Harvest Now, Decrypt Later' mandates migrating long-lived sensitive data to Post-Quantum standards immediately.",
+    ],
+    pitfalls: [
+      "Assuming quantum attacks are decades away and ignoring 'Harvest Now, Decrypt Later' risks for healthcare, government, and intellectual property data.",
+      "Migrating abruptly without hybrid key exchange: standard practice is hybrid X25519 + ML-KEM to protect against vulnerabilities in both classical and quantum algorithms.",
+    ],
+    workedExample: {
+      title: "Hybrid Post-Quantum Key Exchange (X25519 + ML-KEM)",
+      steps: [
+        { label: "1. Dual Key Generation", detail: "Client generates both classical keypair (X25519) and lattice post-quantum keypair (ML-KEM-768)." },
+        { label: "2. Server Encapsulation", detail: "Server completes X25519 Diffie-Hellman shared secret s_classical AND encapsulates ML-KEM shared secret s_quantum." },
+        { label: "3. Combine via HKDF", detail: "Shared Session Key = HKDF-Extract(s_classical ‖ s_quantum)." },
+        { label: "4. Cryptographic Security", detail: "If quantum computers break X25519, ML-KEM protects the session. If an unforeseen flaw is found in lattices, X25519 protects the session!" },
+      ],
+      outcome: "Provides robust defense-in-depth during the global quantum migration era.",
+    },
+    references: [
+      {
+        title: "Peter W. Shor: Polynomial-Time Algorithms for Prime Factorization and Discrete Logarithms on a Quantum Computer (1994)",
+        source: "SIAM Journal on Computing",
+        url: "https://doi.org/10.1137/S0097539795293172",
+        description: "The historical paper that proved quantum computers can factor integers in polynomial time.",
+        type: "paper",
+      },
+      {
+        title: "NIST Post-Quantum Cryptography Standardization Project",
+        source: "NIST CSRC",
+        url: "https://csrc.nist.gov/projects/post-quantum-cryptography",
+        description: "Official federal portal hosting FIPS 203 (ML-KEM), FIPS 204 (ML-DSA), and FIPS 205 (SLH-DSA).",
+        type: "standard",
+      },
+    ],
+    toolId: "quantum-threat",
+    glossary: [
+      { term: "Shor's Algorithm", def: "A quantum algorithm for finding the prime factors of an integer in polynomial time." },
+      { term: "Post-Quantum Cryptography", def: "Cryptographic algorithms that are believed to be secure against an attack by a quantum computer." },
+    ],
+  },
+];

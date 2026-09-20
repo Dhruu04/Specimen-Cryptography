@@ -1,0 +1,586 @@
+import type { Lesson } from "./types";
+
+export const numberTheoryLessons: Lesson[] = [
+  {
+    id: "divisibility",
+    trackId: "numbertheory",
+    title: "Divisibility and the division algorithm",
+    subtitle: "Where every other result starts",
+    formula: {
+      expr: "a = q · b + r,  where 0 ≤ r < b  (Unique Quotient q and Remainder r)",
+      badge: "Unique q, r",
+      note: "For any integer a and positive divisor b, there exists exactly one quotient q and non-negative remainder r. Everything from the Euclidean algorithm to modular rings is built on this fundamental identity.",
+    },
+    body: [
+      "Number theory is the foundational branch of pure mathematics that underpins all modern public-key cryptography, finite field arithmetic, and digital signature algorithms. The starting point of all number theory is the concept of divisibility: we write b | a (read 'b divides a') if there exists an integer c such that a = b · c, meaning b divides a cleanly with a remainder of zero.",
+      "The Division Algorithm: Despite its historical name, the Division Algorithm is not an algorithmic recipe, but a foundational mathematical theorem. It asserts that for any integer dividend a and any positive integer divisor b, there exist uniquely determined integers q (the quotient) and r (the remainder) satisfying: a = q · b + r, with the strict constraint that 0 ≤ r < b. This uniqueness is what guarantees that the modular reduction operator 'mod' is a well-defined mathematical function. Without this theorem, modular arithmetic could produce multiple ambiguous answers.",
+      "The Fundamental Theorem of Arithmetic: Directly emerging from divisibility properties is the unique factorization theorem: every integer n > 1 can be represented as a product of prime numbers in exactly one way, up to the order of the factors: n = p₁^{e₁} · p₂^{e₂} · ... · p_k^{e_k}. This unique factorization is the exact reason the RSA cryptosystem functions: an RSA public modulus n = pq has exactly one pair of prime factors, and hiding this unique prime decomposition is the sole trapdoor that keeps the private key confidential.",
+      "Coprimality: Two integers a and b are defined as coprime (or relatively prime) if their greatest common divisor is 1: gcd(a, b) = 1. Coprimality is the indispensable condition that determines whether an element has a modular multiplicative inverse. If gcd(a, m) > 1, division modulo m is mathematically impossible, and ciphers operating in that residue system cannot be inverted.",
+    ],
+    keyPoints: [
+      "The Division Algorithm guarantees a unique quotient and non-negative remainder: a = q·b + r (0 ≤ r < b).",
+      "The Fundamental Theorem of Arithmetic guarantees unique prime factorization for all integers > 1.",
+      "Coprimality (gcd(a, b) = 1) is the necessary and sufficient condition for modular division and invertibility.",
+      "Every symmetric and asymmetric cipher relies on modular reduction to keep calculations inside finite boundaries.",
+    ],
+    pitfalls: [
+      "Assuming integer division `/` and `%` in programming languages behaves identically for negative dividends: in C, C++, and JavaScript, `-23 % 7` evaluates to `-2`, violating the mathematical requirement that 0 ≤ r < b. Python correctly evaluates `-23 % 7` to `+5`.",
+      "Confusing prime numbers with coprime numbers: two composite numbers (such as 8 and 9) are coprime (gcd(8, 9) = 1) despite neither being prime.",
+    ],
+    workedExample: {
+      title: "Division Algorithm on Negative Dividends",
+      steps: [
+        { label: "1. Dividend & Divisor", detail: "Let dividend a = −23 and divisor b = 7. Formula: a = q·b + r with 0 ≤ r < 7." },
+        { label: "2. Flawed Hardware Division", detail: "Naive C/JavaScript truncated division: −23 / 7 = −3 with remainder −2. This violates 0 ≤ r < 7 because the remainder is negative!" },
+        { label: "3. Correct Mathematical Floor Division", detail: "Take quotient q = ⌊−23 / 7⌋ = −4. Compute product: −4 × 7 = −28. Remainder r = −23 − (−28) = +5." },
+        { label: "4. Verify Constraints", detail: "−23 = (−4 × 7) + 5. Remainder 5 satisfies 0 ≤ 5 < 7. Both q = −4 and r = 5 are uniquely determined." },
+      ],
+      outcome: "Ensures remainder is strictly non-negative, preserving algebraic ring properties in modular arithmetic.",
+    },
+    references: [
+      {
+        title: "Khan Academy: Division Algorithm and Modular Arithmetic",
+        source: "Khan Academy",
+        url: "https://www.khanacademy.org/computing/computer-science/cryptography/modarithmetic/a/the-euclidean-algorithm",
+        description: "Interactive tutorial on the integer division algorithm and remainders.",
+        type: "tutorial",
+      },
+      {
+        title: "Euclid's Elements (Book VII: Elementary Number Theory)",
+        source: "Perseus Digital Library",
+        url: "https://en.wikipedia.org/wiki/Euclid%27s_Elements",
+        description: "Historical foundation of divisibility, prime numbers, and the Euclidean algorithm.",
+        type: "book",
+      },
+    ],
+    toolId: "gcd",
+    glossary: [
+      { term: "Divisibility", def: "An integer a is divisible by an integer b if there exists an integer c such that a = b · c." },
+      { term: "Coprime", def: "Two integers are coprime if their only common positive factor is 1, meaning gcd(a, b) = 1." },
+    ],
+  },
+  {
+    id: "modular-arithmetic",
+    trackId: "numbertheory",
+    title: "Modular arithmetic",
+    subtitle: "Clock arithmetic, the language of cryptography",
+    formula: {
+      expr: "a ≡ b (mod m)  ⟺  m | (a − b)  (Equivalence Class in Ring ℤ_m)",
+      badge: "Ring ℤ_m",
+      note: "Addition, subtraction and multiplication behave naturally modulo m. True division does not exist; it is replaced by multiplication by the modular multiplicative inverse.",
+    },
+    body: [
+      "Modular arithmetic—often called 'clock arithmetic'—is the native mathematical language of cryptography. We say that two integers a and b are congruent modulo m (written a ≡ b mod m) if and only if their difference (a − b) is an exact integer multiple of m: m | (a − b). Equivalently, a and b leave the exact same remainder when divided by the modulus m.",
+      "Finite Rings and Containment: Standard arithmetic over real numbers produces outputs that grow infinitely large (e.g., multiplying two 2048-bit numbers produces a 4096-bit number). Computers have finite memory, and ciphers must map data into bounded alphanumeric sets or fixed block sizes. Working modulo m bounds all results inside the finite set of residue classes: ℤ_m = {0, 1, 2, ..., m − 1}. No matter how many additions or multiplications are performed, values wrap around and never leave this closed set.",
+      "The 'Reduce Early and Often' Principle: Because modular reduction distributes across addition, subtraction, and multiplication: (a + b) mod m = [(a mod m) + (b mod m)] mod m, and (a · b) mod m = [(a mod m) · (b mod m)] mod m. This algebraic property is essential for cryptographic performance: when calculating modular exponentiation (such as 7¹²⁸ mod 13 in Diffie-Hellman or RSA), software reduces the intermediate results modulo m after every single multiplication. The numbers never grow larger than m², preventing integer overflow and memory exhaustion.",
+      "The Absence of Ordinary Division: In standard arithmetic, dividing by 5 is equivalent to multiplying by 0.2. In modular arithmetic over integers, fractions like 0.2 do not exist! Instead, division by a is defined strictly as multiplication by the modular multiplicative inverse a⁻¹, which is the unique integer satisfying: a · a⁻¹ ≡ 1 mod m. If no such integer exists, division by a modulo m is undefined.",
+    ],
+    keyPoints: [
+      "Congruence: a ≡ b (mod m) means (a − b) is a multiple of m; both leave identical remainders.",
+      "Modular reduction is compatible with addition, subtraction, and multiplication.",
+      "Reduce early and often: modular reduction after every step prevents astronomical integer expansion.",
+      "Division is replaced by multiplication with the modular multiplicative inverse a⁻¹.",
+    ],
+    pitfalls: [
+      "Attempting modular division via floating-point division `(a / b) % m`: invalid! Modular division is defined as `(a * modInverse(b, m)) % m`.",
+      "Calculating `(a^b) % m` by computing `a^b` first: for a 2048-bit exponent b, `a^b` has millions of digits and will crash the computer. Always use modular exponentiation (repeated squaring).",
+    ],
+    workedExample: {
+      title: "Fast Modular Exponentiation via Repeated Squaring (7¹²⁸ mod 13)",
+      steps: [
+        { label: "1. Exponent Analysis", detail: "Target: 7¹²⁸ mod 13. Notice exponent 128 = 2⁷ is an exact power of two." },
+        { label: "2. Successive Squaring with Reduction", detail: "7¹ ≡ 7; 7² = 49 ≡ 10; 7⁴ = 10² = 100 ≡ 9; 7⁸ = 9² = 81 ≡ 3; 7¹⁶ = 3² = 9; 7³² = 9² ≡ 3; 7⁶⁴ = 3² = 9; 7¹²⁸ = 9² = 81 ≡ 3 mod 13." },
+        { label: "3. Alternative via Fermat's Theorem", detail: "Since 13 is prime, Fermat's theorem guarantees 7¹² ≡ 1 mod 13. Exponent 128 = (10 × 12) + 8. Therefore: 7¹²⁸ = (7¹²)¹⁰ · 7⁸ ≡ 1¹⁰ · 7⁸ ≡ 3 mod 13." },
+      ],
+      outcome: "Computed 7¹²⁸ mod 13 = 3 in just 7 modular multiplications without numbers ever exceeding 100.",
+    },
+    references: [
+      {
+        title: "3Blue1Brown: Modular Arithmetic and Cryptography",
+        source: "YouTube / 3Blue1Brown",
+        url: "https://www.youtube.com/watch?v=sVXkF2c1u6k",
+        description: "Visual exploration of clock arithmetic, modular congruence, and modular exponentiation.",
+        type: "tutorial",
+      },
+    ],
+    toolId: "mod-pow",
+    glossary: [
+      { term: "Congruence", def: "Two numbers are congruent modulo m if their difference is divisible by m." },
+      { term: "Modular Exponentiation", def: "Computing c ≡ bᵉ mod m efficiently using successive squaring and reduction without computing bᵉ directly." },
+    ],
+  },
+  {
+    id: "euclid",
+    trackId: "numbertheory",
+    title: "The Euclidean algorithm",
+    subtitle: "Oldest algorithm still in daily use",
+    formula: {
+      expr: "gcd(a, b) = gcd(b, a mod b),  gcd(a, 0) = a  |  Bézout: ax + by = gcd(a, b)",
+      badge: "O(log n)",
+      note: "Repeatedly replaces the larger number with the remainder. The Extended Euclidean Algorithm simultaneously computes Bézout coefficients x and y.",
+    },
+    body: [
+      "Documented in Book VII of Euclid's 'Elements' around 300 BC, the Euclidean Algorithm is one of the oldest and most elegant mathematical algorithms in active daily use. It computes the Greatest Common Divisor (GCD) of two integers—the largest positive integer that divides both numbers without a remainder.",
+      "The Invariance Lemma: The algorithm rests on a simple geometric and algebraic truth: if an integer d divides both a and b, then d must also divide their difference (a − b) and any remainder r = a mod b. Therefore: gcd(a, b) = gcd(b, a mod b). By repeatedly replacing (a, b) with (b, a mod b), the numbers shrink rapidly until the remainder reaches 0. The final non-zero remainder is the greatest common divisor gcd(a, b).",
+      "Logarithmic Efficiency (Lamé's Theorem): In 1844, Gabriel Lamé proved that the number of division steps in the Euclidean algorithm never exceeds 5 times the number of digits in the smaller number. Its worst-case inputs are consecutive Fibonacci numbers (e.g. gcd(F_{k+1}, F_k)), where the quotient is 1 at every step. Because its time complexity is O(log(min(a, b))), the algorithm evaluates GCDs for 4096-bit cryptographic numbers in less than a millisecond.",
+      "The Extended Euclidean Algorithm (Bézout's Identity): Bézout's identity states that for any non-zero integers a and b, there exist integers x and y such that: ax + by = gcd(a, b). The Extended Euclidean Algorithm tracks quotient coefficients backwards during execution to calculate these integer weights x and y. When a and b are coprime (gcd(a, b) = 1), Bézout's identity becomes: ax + by = 1. Taking this equation modulo b yields: ax ≡ 1 mod b. Therefore, the Bézout coefficient x is the exact modular multiplicative inverse of a modulo b! This is the exact mathematical algorithm used to generate RSA private decryption keys d = e⁻¹ mod φ(n).",
+    ],
+    keyPoints: [
+      "Finds the greatest common divisor by repeated remainder substitution: gcd(a, b) = gcd(b, a mod b).",
+      "Runs in logarithmic time O(log n), making it practical for massive 4096-bit cryptographic integers.",
+      "Bézout's identity: ax + by = gcd(a, b). When gcd = 1, x is the modular inverse of a modulo b.",
+      "Essential component of RSA key generation, ECC point addition, and primality testing.",
+    ],
+    pitfalls: [
+      "Failing to verify that gcd(a, m) = 1 before computing modular inverses: if gcd > 1, the Extended Euclidean Algorithm produces Bézout coefficients for a non-trivial divisor, and no modular inverse exists.",
+      "Recursive stack overflow on large BigInt numbers: production cryptographic libraries implement the Euclidean algorithm iteratively, not recursively.",
+    ],
+    workedExample: {
+      title: "Extended Euclidean Algorithm for gcd(240, 46)",
+      steps: [
+        { label: "1. Forward Division Steps", detail: "240 = 5 × 46 + 10; 46 = 4 × 10 + 6; 10 = 1 × 6 + 4; 6 = 1 × 4 + 2; 4 = 2 × 2 + 0." },
+        { label: "2. Identify GCD", detail: "The last non-zero remainder is gcd(240, 46) = 2." },
+        { label: "3. Back-Substitution (Isolating 2)", detail: "2 = 6 − 1×4." },
+        { label: "4. Substitute 4 = 10 − 1×6", detail: "2 = 6 − 1×(10 − 1×6) = 2×6 − 1×10." },
+        { label: "5. Substitute 6 = 46 − 4×10", detail: "2 = 2×(46 − 4×10) − 10 = 2×46 − 9×10." },
+        { label: "6. Substitute 10 = 240 − 5×46", detail: "2 = 2×46 − 9×(240 − 5×46) = (−9)×240 + 47×46." },
+      ],
+      outcome: "Bézout identity verified: (−9)×240 + (47)×46 = −2160 + 2162 = 2.",
+    },
+    references: [
+      {
+        title: "Khan Academy: The Extended Euclidean Algorithm",
+        source: "Khan Academy",
+        url: "https://www.khanacademy.org/computing/computer-science/cryptography/modarithmetic/a/the-euclidean-algorithm",
+        description: "Step-by-step interactive derivation of Bézout's identity and gcd extraction.",
+        type: "tutorial",
+      },
+    ],
+    toolId: "euclid-tableau",
+    glossary: [
+      { term: "Greatest Common Divisor (GCD)", def: "The largest positive integer that divides each of two or more integers without remainder." },
+      { term: "Bézout's Identity", def: "A theorem in number theory stating that for integers a and b with gcd(a, b) = d, there exist integers x and y such that ax + by = d." },
+    ],
+  },
+  {
+    id: "modular-inverse",
+    trackId: "numbertheory",
+    title: "Modular inverses",
+    subtitle: "The closest thing to division mod m",
+    formula: {
+      expr: "a · a⁻¹ ≡ 1 (mod m)  ⟺  gcd(a, m) = 1",
+      badge: "Multiplicative Inverse",
+      note: "Compute it via Extended Euclid in O(log m), or when m is prime using Fermat's Little Theorem: a⁻¹ ≡ a^(m−2) (mod m).",
+    },
+    body: [
+      "In standard elementary arithmetic, division by a non-zero number a is accomplished by multiplying by its reciprocal 1/a. In modular arithmetic over integers modulo m, fractional numbers do not exist. Instead, division is replaced by multiplication with the Modular Multiplicative Inverse.",
+      "The Modular Multiplicative Inverse of an integer a modulo m is an integer x such that: a · x ≡ 1 mod m. When such an x exists, we denote it by a⁻¹. For example, modulo 26, the inverse of 3 is 9 because 3 × 9 = 27 = (1 × 26) + 1 ≡ 1 mod 26.",
+      "The Coprimality Existence Condition: A modular inverse a⁻¹ mod m exists IF AND ONLY IF a and m are coprime: gcd(a, m) = 1. If gcd(a, m) = d > 1, any product a · x is a multiple of d; since d > 1 cannot divide 1, no integer x can ever satisfy a · x ≡ 1 mod m. For example, modulo 26, the number 4 has no inverse because gcd(4, 26) = 2; multiplying 4 by any integer always yields an even number, never an odd remainder of 1.",
+      "Two Computational Methods: 1) Extended Euclidean Algorithm: works for any arbitrary modulus m (prime or composite) in O(log m) time; 2) Fermat's Little Theorem Shortcut: when modulus p is a prime, Fermat's theorem asserts that a^(p-1) ≡ 1 mod p. Dividing both sides by a reveals: a^(p-2) · a ≡ 1 mod p. Therefore, when p is prime, a⁻¹ ≡ a^(p-2) mod p! This allows computing modular inverses via fast modular exponentiation.",
+      "Constant-Time Cryptographic Requirement: In Elliptic Curve point multiplication and RSA decryption, computing modular inverses occurs on secret private key data. A variable-time Euclidean algorithm introduces timing side-channel leaks. Secure production libraries mandate constant-time inversion algorithms (such as Bernstein's constant-time GCD or Fermat exponentiation).",
+    ],
+    keyPoints: [
+      "A modular inverse a⁻¹ exists if and only if gcd(a, m) = 1.",
+      "When modulus p is prime, a⁻¹ ≡ a^(p-2) mod p (via Fermat's Little Theorem).",
+      "When modulus m is composite, use the Extended Euclidean Algorithm: a·x + m·y = 1 ⟹ x ≡ a⁻¹ mod m.",
+      "Constant-time inversion is strictly mandatory to prevent microarchitectural timing leaks on private keys.",
+    ],
+    pitfalls: [
+      "Using non-constant-time Extended Euclidean Algorithm on private keys: execution timing fluctuations directly leak key bits to attackers.",
+      "Attempting to invert non-coprime numbers (e.g. attempting to invert 4 modulo 26 in the Affine cipher, which breaks the decryptor).",
+    ],
+    workedExample: {
+      title: "Calculating Modular Inverse 17⁻¹ mod 3120 for RSA",
+      steps: [
+        { label: "1. Target Equation", detail: "Solve 17 · d ≡ 1 mod 3120 (calculating RSA private exponent d from e=17 and φ(n)=3120)." },
+        { label: "2. Forward Euclidean Steps", detail: "3120 = 183 × 17 + 9; 17 = 1 × 9 + 8; 9 = 1 × 8 + 1." },
+        { label: "3. Back-Substitute for Remainder 1", detail: "1 = 9 − 1×8 = 9 − 1×(17 − 1×9) = 2×9 − 1×17." },
+        { label: "4. Substitute Remainder 9", detail: "1 = 2×(3120 − 183×17) − 1×17 = 2×3120 − 367×17." },
+        { label: "5. Reduce Modulo 3120", detail: "−367 × 17 ≡ 1 mod 3120. Convert negative coefficient: d = −367 + 3120 = 2753 mod 3120." },
+      ],
+      outcome: "Modular inverse d = 2753 verified: (17 × 2753) mod 3120 = 46801 mod 3120 = 1.",
+    },
+    references: [
+      {
+        title: "William Stallings: Cryptography and Network Security (8th Edition, Chapter 2)",
+        source: "Textbook Standard",
+        url: "https://en.wikipedia.org/wiki/Modular_multiplicative_inverse",
+        description: "Mathematical formulation of modular inverses and coprime rings.",
+        type: "book",
+      },
+    ],
+    toolId: "mod-inverse",
+    glossary: [
+      { term: "Modular Inverse", def: "An integer x such that the product ax is congruent to 1 with respect to the modulus m." },
+    ],
+  },
+  {
+    id: "primes",
+    trackId: "numbertheory",
+    title: "Primes and primality testing",
+    subtitle: "Finding 1024-bit primes in milliseconds",
+    formula: {
+      expr: "Miller–Rabin: n − 1 = 2ᵏ · q  |  Test a^q ≢ 1 and a^(2ʲ·q) ≢ −1 (mod n)",
+      badge: "Probabilistic Primality",
+      note: "Each random base has at most a 1/4 probability of falsely passing a composite (a witness to compositeness). Running 40 independent rounds reduces error probability below 2⁻⁸⁰.",
+    },
+    body: [
+      "Prime numbers—integers greater than 1 with no positive divisors other than 1 and themselves—are the fundamental building blocks (the 'atoms') of arithmetic. In public-key cryptography, generating large random primes (such as 1024-bit or 2048-bit primes for RSA or Diffie-Hellman) is an indispensable operation.",
+      "The Density of Primes (The Prime Number Theorem): The Prime Number Theorem, proven by Hadamard and de la Vallée Poussin in 1896, asserts that the number of primes less than x is asymptotically π(x) ≈ x / ln(x). For a 1024-bit integer, the probability that a randomly chosen odd number is prime is approximately 2 / ln(2¹⁰²⁴) ≈ 2 / (1024 × 0.693) ≈ 1 / 355. This means that a computer searching for a 1024-bit prime only needs to test a few hundred random candidates before finding a prime!",
+      "Why Trial Division Fails: Testing if a 1024-bit number n is prime by trial division requires testing all prime factors up to √n ≈ 2⁵¹². Even a supercomputer testing a trillion numbers per second would require 10¹⁴³ years! Cryptography requires polynomial-time primality tests.",
+      "The Miller-Rabin Probabilistic Primality Test: Discovered by Gary Miller and Michael Rabin in 1980, the Miller-Rabin algorithm is the universal gold standard for primality testing. It decomposes n − 1 into 2ᵏ · q (where q is odd). For a random base a, it checks whether a^q ≡ 1 mod n or a^(2ʲ · q) ≡ −1 mod n for some 0 ≤ j < k. If neither condition holds, n is provably composite (a is a 'witness to compositeness'). If it passes, n is 'probably prime'. Because a composite number passes the test with probability at most 1/4 for any random base, running 40 independent rounds with random bases reduces the false positive probability below (1/4)⁴⁰ = 2⁻⁸⁰ ≈ 8.27 × 10⁻²⁵—far less likely than a hardware cosmic-ray bit-flip in CPU silicon.",
+    ],
+    keyPoints: [
+      "Prime Number Theorem: Primes are abundant enough that random search finds a 1024-bit prime in milliseconds.",
+      "Trial division is computationally impossible for cryptographic sizes (√n ≈ 2⁵¹²).",
+      "Miller-Rabin test runs in O(k log³ n) time: 40 rounds provides absolute cryptographic certainty.",
+      "Fermat's primality test fails on Carmichael numbers (e.g. 561, 1105); Miller-Rabin is immune to Carmichael numbers.",
+    ],
+    pitfalls: [
+      "Using Fermat's Primality Test alone: Carmichael numbers pass Fermat's test a^(n-1) ≡ 1 mod n for all coprime bases a despite being composite.",
+      "Using too few Miller-Rabin rounds: running only 2 or 3 rounds leaves an unacceptable risk of generating composite RSA moduli.",
+    ],
+    workedExample: {
+      title: "Miller-Rabin Primality Test on n = 221 with Base a = 174",
+      steps: [
+        { label: "1. Decompose n − 1", detail: "221 − 1 = 220 = 2² × 55. So k = 2 and odd component q = 55 (220 = 2² · 55)." },
+        { label: "2. Test Initial Power a^q mod n", detail: "Compute 174⁵⁵ mod 221 ≡ 47 mod 221. Since 47 ≢ 1 and 47 ≢ 220 (−1), continue to squarings." },
+        { label: "3. Square for j = 1", detail: "Compute (47)² mod 221 = 2209 mod 221 = 220 ≡ −1 mod 221." },
+        { label: "4. Conclusion", detail: "Because a^(2¹ · q) ≡ −1 mod 221, 221 passes this round with base 174. (Testing base a = 2 reveals 2⁵⁵ mod 221 ≡ 112, exposing that 221 = 13 × 17 is composite)." },
+      ],
+      outcome: "Demonstrates probabilistic witness testing in modern cryptographic prime generation.",
+    },
+    references: [
+      {
+        title: "Michael O. Rabin: Probabilistic Algorithm for Testing Primality (1980)",
+        source: "Journal of Number Theory",
+        url: "https://doi.org/10.1016/0022-314X(80)90084-0",
+        description: "The seminal paper establishing the Miller-Rabin probabilistic primality test used in all modern cryptography.",
+        type: "paper",
+      },
+    ],
+    toolId: "miller-rabin",
+    glossary: [
+      { term: "Primality Test", def: "An algorithm for determining whether an input number is prime." },
+      { term: "Carmichael Number", def: "A composite number n which satisfies the modular congruence b^(n-1) ≡ 1 (mod n) for all integers b relatively prime to n." },
+    ],
+  },
+  {
+    id: "factoring",
+    trackId: "numbertheory",
+    title: "The factoring problem",
+    subtitle: "The hardness RSA is built on",
+    formula: {
+      expr: "Given composite n = p · q, find non-trivial factors p and q",
+      badge: "Sub-Exponential",
+      note: "The General Number Field Sieve (GNFS) factors integers in sub-exponential time exp((c + o(1))(ln n)^(1/3)(ln ln n)^(2/3)). This forces RSA keys to be 2048 to 4096 bits.",
+    },
+    body: [
+      "The Integer Factorization Problem is one of the most extensively studied computational problems in history. Stated simply: given a composite integer n that is the product of two secret prime numbers p and q, find p and q. While multiplying p and q together to form n requires less than a microsecond, reversing the multiplication without knowing the factors is the foundational mathematical trapdoor behind the RSA cryptosystem.",
+      "The Spectrum of Factoring Algorithms: 1) Trial Division: divides n by successive primes up to √n; effective only up to ~10¹⁶; 2) Pollard's Rho & p − 1 Algorithms: finds small prime factors in O(p^(1/2)) time; 3) Lenstra Elliptic Curve Factorization (ECM): factors numbers up to ~80 decimal digits by evaluating points on random elliptic curves; 4) Quadratic Sieve (QS): the fastest algorithm for numbers up to ~100 decimal digits; 5) General Number Field Sieve (GNFS): the reigning asymptotic champion for numbers exceeding 110 digits.",
+      "Why GNFS Forces Huge Key Sizes (Sub-Exponential Complexity): If factoring required strictly exponential time O(2^(k/2)), a 256-bit RSA key would be unbreakable. However, GNFS runs in sub-exponential time: L_n[1/3, c] = exp((c + o(1))(ln n)^(1/3)(ln ln n)^(2/3)). Because sub-exponential algorithms grow much slower than true exponential curves, doubling the security level requires more than doubling the key size! To match the 128-bit security of a 256-bit ECC key, RSA must use a massive 3072-bit modulus.",
+      "Batch GCD Factoring of Real-World Vulnerable Keys: In 2012, researchers scanned the public internet and gathered millions of public RSA keys from web servers and embedded firewalls. Because many devices booted without sufficient entropy in their random number generators, thousands of devices independently generated the exact same prime p with different primes q₁ and q₂. By computing gcd(n₁, n₂) across pairs of public keys using a fast pairwise product tree, researchers factored tens of thousands of private keys in hours without running any sieve!",
+    ],
+    keyPoints: [
+      "No polynomial-time classical factoring algorithm is known for composite integers.",
+      "GNFS is sub-exponential: forces RSA key sizes to 2048, 3072, and 4096 bits.",
+      "Shor's quantum algorithm factors integers in polynomial time O((log n)³), necessitating post-quantum migration.",
+      "Weak hardware entropy during key generation is the most common real-world cause of RSA key compromise.",
+    ],
+    pitfalls: [
+      "Choosing primes p and q too close together (|p − q| < 2n^(1/4)): allows Fermat's factorization algorithm to factor n in milliseconds.",
+      "Generating RSA keys on embedded devices before the hardware random number generator pool is fully seeded.",
+    ],
+    workedExample: {
+      title: "Fermat's Factorization Method on Close Primes (n = 5959)",
+      steps: [
+        { label: "1. Modulus Inspection", detail: "Given composite n = 5959. Fermat's identity: n = a² − b² = (a − b)(a + b)." },
+        { label: "2. Initial Square Root Ceiling", detail: "Compute starting value a = ⌈√5959⌉ = ⌈77.19⌉ = 78." },
+        { label: "3. Iteration a = 78", detail: "Check if a² − n is a perfect square: 78² − 5959 = 6084 − 5959 = 125 (not a square)." },
+        { label: "4. Iteration a = 79", detail: "79² − 5959 = 6241 − 5959 = 282 (not a square)." },
+        { label: "5. Iteration a = 80", detail: "80² − 5959 = 6400 − 5959 = 441. 441 = 21²! Perfect square found: b = 21." },
+        { label: "6. Extract Prime Factors", detail: "p = a − b = 80 − 21 = 59; q = a + b = 80 + 21 = 101. Verify: 59 × 101 = 5959." },
+      ],
+      outcome: "Factored n = 5959 into 59 × 101 in just 3 iterations because p and q were close together.",
+    },
+    references: [
+      {
+        title: "Lenstra & Lenstra: The Development of the Number Field Sieve",
+        source: "Springer Lecture Notes in Mathematics",
+        url: "https://en.wikipedia.org/wiki/General_number_field_sieve",
+        description: "The definitive reference on the sub-exponential algorithm used to break RSA challenge keys.",
+        type: "book",
+      },
+    ],
+    toolId: "factorize",
+    glossary: [
+      { term: "General Number Field Sieve (GNFS)", def: "The most efficient known classical algorithm for factoring integers larger than 10¹⁰⁰." },
+      { term: "Sub-Exponential Time", def: "An algorithm whose running time grows faster than any polynomial function, but slower than any exponential function." },
+    ],
+  },
+  {
+    id: "fermat-euler",
+    trackId: "numbertheory",
+    title: "Fermat, Euler and totients",
+    subtitle: "The theorems that make RSA correct",
+    formula: {
+      expr: "Fermat: a^(p−1) ≡ 1 (mod p)  |  Euler: a^φ(n) ≡ 1 (mod n)  for gcd(a, n) = 1",
+      badge: "Core Theorems",
+      note: "Euler's totient φ(n) counts integers below n that are coprime to n. For primes p and q, φ(pq) = (p−1)(q−1). Euler's theorem is the mathematical foundation of RSA decryption.",
+    },
+    body: [
+      "In 1640, French mathematician Pierre de Fermat stated one of number theory's most celebrated identities (known today as Fermat's Little Theorem): if p is a prime number and a is any integer not divisible by p, then raising a to the power (p − 1) always yields a remainder of 1 modulo p: a^(p−1) ≡ 1 mod p. Multiplying both sides by a gives the universal form: a^p ≡ a mod p.",
+      "Euler's Generalization to Composite Moduli: In 1736, Swiss mathematician Leonhard Euler generalized Fermat's theorem to apply to ANY positive integer modulus n (composite or prime). Euler defined the Totient Function φ(n) (often called Euler's phi function), which counts the number of positive integers less than n that are coprime to n: gcd(a, n) = 1. Euler's Totient Theorem asserts that for any integer a coprime to n: a^φ(n) ≡ 1 mod n.",
+      "The Mathematical Proof of RSA Decryption: In RSA, public exponent e and private exponent d are chosen to satisfy ed ≡ 1 mod φ(n), which means ed = k · φ(n) + 1 for some integer k. When a recipient decrypts ciphertext c = mᵉ mod n by computing cᵈ mod n, we have: cᵈ = (mᵉ)ᵈ = m^(ed) = m^(k·φ(n) + 1) = (m^φ(n))ᵏ · m mod n. By Euler's theorem, m^φ(n) ≡ 1 mod n. Substituting 1 yields: (1)ᵏ · m ≡ m mod n! Decryption recovers the original message m with exact mathematical certainty.",
+      "Multiplicative Totient Identity: Euler's totient is a multiplicative function: if gcd(a, b) = 1, then φ(ab) = φ(a) · φ(b). For any prime p, all p − 1 positive integers below p are coprime to p, so φ(p) = p − 1. For the product of two distinct primes n = pq, this multiplicative rule yields: φ(n) = φ(p) · φ(q) = (p − 1)(q − 1).",
+    ],
+    keyPoints: [
+      "Fermat's Little Theorem: a^(p-1) ≡ 1 mod p for any prime p and a ≢ 0 mod p.",
+      "Euler's Theorem: a^φ(n) ≡ 1 mod n for any modulus n and gcd(a, n) = 1.",
+      "For distinct primes p and q, φ(pq) = (p − 1)(q − 1).",
+      "Euler's theorem is the exact mathematical mechanism that proves RSA decryption works.",
+    ],
+    pitfalls: [
+      "Applying Fermat's Little Theorem when the modulus is composite: a^(m-1) is rarely 1 if m is not prime.",
+      "Attempting to compute φ(n) for a composite modulus without knowing its prime factors: calculating φ(n) is computationally equivalent in hardness to factoring n!",
+    ],
+    workedExample: {
+      title: "Euler's Totient Calculation on Composite n = 360",
+      steps: [
+        { label: "1. Prime Factorization", detail: "360 = 2³ × 3² × 5¹." },
+        { label: "2. General Totient Product Formula", detail: "φ(n) = n · ∏_{p | n} (1 − 1/p)." },
+        { label: "3. Calculation", detail: "φ(360) = 360 × (1 − 1/2) × (1 − 1/3) × (1 − 1/5) = 360 × (1/2) × (2/3) × (4/5) = 360 × (8/30) = 96." },
+        { label: "4. Verification", detail: "There are exactly 96 integers between 1 and 360 that are coprime to 360." },
+      ],
+      outcome: "Euler totient formula verified on prime-power composites.",
+    },
+    references: [
+      {
+        title: "Stanford CS255: Number Theory Foundations (Dan Boneh)",
+        source: "Stanford University",
+        url: "https://crypto.stanford.edu/~dabo/cs255/",
+        description: "Academic lecture notes on Euler's totient function, cyclic groups, and RSA correctness proofs.",
+        type: "tutorial",
+      },
+    ],
+    toolId: "totient",
+    glossary: [
+      { term: "Euler's Totient Function φ(n)", def: "An arithmetic function that counts the positive integers up to a given integer n that are relatively prime to n." },
+      { term: "Fermat's Little Theorem", def: "A fundamental theorem stating that if p is prime and a is not divisible by p, then a^(p-1) ≡ 1 (mod p)." },
+    ],
+  },
+  {
+    id: "groups-fields",
+    trackId: "numbertheory",
+    title: "Groups, generators and finite fields",
+    subtitle: "The structures ciphers live inside",
+    formula: {
+      expr: "ℤ*ₚ is cyclic of order p − 1;  AES operates in Galois Field GF(2⁸)",
+      badge: "Abstract Algebra",
+      note: "A generator (primitive root) g generates every non-zero residue as powers g¹, g², ... g^(p-1). Finite fields provide addition, multiplication, and inversion without fractional rounding.",
+    },
+    body: [
+      "Modern cryptography does not operate on arbitrary numbers; it operates inside formal algebraic structures: Groups, Rings, and Fields. Understanding these abstract algebraic structures is what separates an amateur who copies code from a cryptanalyst who understands why algorithms are secure.",
+      "Groups & Cyclic Groups: A group (G, ·) is a set G paired with an operation that satisfies four axioms: 1) Closure: a · b ∈ G; 2) Associativity: (a · b) · c = a · (b · c); 3) Identity element e: a · e = a; 4) Inverses: for every a, there exists a⁻¹ such that a · a⁻¹ = e. If a · b = b · a, it is an Abelian Group. A group is Cyclic if every element can be generated by repeatedly applying the group operation to a single element g (the Generator or Primitive Root). In Diffie-Hellman, the multiplicative group ℤ_p* is cyclic of order p − 1, meaning g¹, g², g³, ..., g^(p-1) mod p visits every single non-zero number in the field!",
+      "The Pohlig-Hellman Vulnerability (Smooth Group Orders): If the group order p − 1 factors into small prime factors (a 'smooth' number), the Pohlig-Hellman algorithm computes discrete logarithms by solving tiny discrete logs in each small subgroup and recombining them via CRT. To prevent this, Diffie-Hellman mandates Safe Primes where p = 2q + 1 (with q being prime), ensuring the group has a massive prime-order subgroup of size q.",
+      "Galois Fields GF(2⁸) in AES: A Field is a ring with fully invertible multiplication (every non-zero element has a multiplicative inverse). Finite fields with p^n elements are known as Galois Fields, denoted GF(p^n). AES operates in GF(2⁸)—a field of exactly 256 elements where each byte is represented as a polynomial of degree at most 7 with binary coefficients: b₇x⁷ + b₆x⁶ + ... + b₁x + b₀. Addition in GF(2⁸) is simple bitwise XOR (since 1 + 1 = 0 in GF(2)). Multiplication is polynomial multiplication reduced modulo the irreducible polynomial m(x) = x⁸ + x⁴ + x³ + x + 1 (0x11B). The AES SubBytes S-box is built on multiplicative inversion in GF(2⁸), chosen specifically because inversion is maximally non-linear.",
+    ],
+    keyPoints: [
+      "Groups provide closure, associativity, identity, and unique inverses.",
+      "Cyclic groups allow a single generator g to traverse the entire keyspace.",
+      "Pohlig-Hellman attacks break smooth group orders; always use safe primes or prime-order elliptic curves.",
+      "AES MixColumns and SubBytes live entirely inside the finite Galois Field GF(2⁸).",
+    ],
+    pitfalls: [
+      "Using an arbitrary prime in Diffie-Hellman without verifying whether p − 1 has small factors (smooth order): allows instant Pohlig-Hellman key recovery.",
+      "Confusing polynomial addition in GF(2⁸) with integer addition: in GF(2⁸), addition is strictly bitwise XOR with no carrying.",
+    ],
+    workedExample: {
+      title: "Galois Field GF(2⁸) Multiplication by x (xtime in AES)",
+      steps: [
+        { label: "1. Byte Representation", detail: "Byte 0x57 = 01010111₂ (polynomial x⁶ + x⁴ + x² + x + 1)." },
+        { label: "2. Multiply by x", detail: "Shift left by 1 bit: (x⁶ + x⁴ + x² + x + 1) · x = x⁷ + x⁵ + x³ + x² + x = 10101110₂ (hex 0xAE)." },
+        { label: "3. Check Degree Overflow", detail: "The original high bit was 0 (no x⁸ term produced), so no modular reduction modulo 0x11B is required." },
+        { label: "4. Overflow Reduction Rule", detail: "If the high bit had been 1, multiplying by x produces an x⁸ term; the result must be XORed with irreducible polynomial 0x1B (0x11B stripped of its 8th bit)." },
+      ],
+      outcome: "Demonstrates atomic Galois field multiplication implemented in AES MixColumns.",
+    },
+    references: [
+      {
+        title: "William Stallings: Cryptography and Network Security (Chapter 4: Finite Fields)",
+        source: "Textbook Standard",
+        url: "https://en.wikipedia.org/wiki/Finite_field_arithmetic",
+        description: "Chapter 4: Comprehensive algebraic treatment of groups, rings, and Galois fields GF(2ⁿ).",
+        type: "book",
+      },
+    ],
+    toolId: "primitive-roots",
+    glossary: [
+      { term: "Abelian Group", def: "A group in which the result of applying the group operation to two elements does not depend on the order in which they are written (commutative)." },
+      { term: "Finite Field (Galois Field)", def: "A field that contains a finite number of elements, denoted GF(p^n), where arithmetic operations wrap around algebraically." },
+    ],
+  },
+  {
+    id: "crt",
+    trackId: "numbertheory",
+    title: "The Chinese Remainder Theorem",
+    subtitle: "Solving simultaneous congruences",
+    formula: {
+      expr: "x ≡ aᵢ (mod nᵢ)  ⟹  x = (∑ aᵢ Mᵢ yᵢ) mod N,  where N = ∏ nᵢ, Mᵢ = N / nᵢ, yᵢ = Mᵢ⁻¹ mod nᵢ",
+      badge: "Constructive CRT",
+      note: "For pairwise coprime moduli n₁, n₂, ..., n_k, there exists exactly one unique solution x modulo the product N = n₁·n₂·...·n_k.",
+    },
+    body: [
+      "Documented in the 3rd century AD by Chinese mathematician Sunzi in 'Sunzi Suanjing' (Master Sun's Mathematical Manual), the Chinese Remainder Theorem (CRT) is a cornerstone of modern high-performance cryptography and cryptanalysis.",
+      "The Theorem: Suppose n₁, n₂, ..., n_k are positive integers that are pairwise coprime (meaning gcd(n_i, n_j) = 1 for all i ≠ j). For any set of remainders a₁, a₂, ..., a_k, the system of simultaneous modular congruences: x ≡ a₁ mod n₁, x ≡ a₂ mod n₂, ..., x ≡ a_k mod n_k has a unique solution x modulo the product N = n₁ · n₂ · ... · n_k.",
+      "Constructive Solution: Let N = ∏ n_i. For each modulus, compute partial product M_i = N / n_i (the product of all moduli except n_i). Because M_i and n_i are coprime, compute the modular inverse y_i = M_i⁻¹ mod n_i via Extended Euclid. The unique solution is assembled as: x = (∑ a_i · M_i · y_i) mod N.",
+      "Cryptographic Speedup (RSA-CRT Decryption): When decrypting in RSA, calculating m = cᵈ mod n on a 2048-bit modulus n = pq is computationally expensive (exponentiation cost scales cubically O(k³)). By applying CRT, the decryption is split into two 1024-bit half-size calculations: m_p = c^{d_p} mod p, and m_q = c^{d_q} mod q, where d_p = d mod (p − 1) and d_q = d mod (q − 1). Because operating on half-size numbers is 8 times faster, and there are two branches, RSA-CRT decryption runs approximately 4 times faster than standard RSA!",
+      "The Fatal Bellcore Laser Fault Injection Attack: In 1996, Dan Boneh, Richard DeMillo, and Richard Lipton discovered that RSA-CRT speedup introduces a catastrophic physical vulnerability: if an attacker induces a transient hardware fault (via a laser pulse, voltage glitch, or clock spike) during the computation of m_p, the output signature S' will be faulty modulo p, but correct modulo q: S' ≡ m_q mod q. Comparing the faulty signature S' with a valid signature S reveals: S − S' is a multiple of q, but NOT a multiple of p! Therefore: gcd(S − S', n) = q! A single computational glitch instantly factors the 2048-bit RSA key. Production cryptographic libraries must always verify signatures before returning them.",
+    ],
+    keyPoints: [
+      "Reconstructs a unique integer modulo N = ∏ n_i from independent residue remainders.",
+      "Requires pairwise coprime moduli: gcd(n_i, n_j) = 1 for all pairs.",
+      "RSA-CRT decrypts ~4× faster, but requires mathematical fault checks to prevent Bellcore attacks.",
+      "Powers Håstad's broadcast attack on small RSA public exponents (e = 3).",
+    ],
+    pitfalls: [
+      "The Bellcore Fault Injection Attack: Returning a faulty RSA-CRT signature allows an attacker to factor the modulus n via a single gcd calculation.",
+      "Applying CRT when moduli share common factors: simultaneous congruences have no solution if remainders conflict modulo gcd(n_i, n_j).",
+    ],
+    workedExample: {
+      title: "Solving a 2-Congruence System via CRT",
+      steps: [
+        { label: "1. System of Congruences", detail: "Solve: x ≡ 2 mod 3, and x ≡ 3 mod 5. (Moduli n₁ = 3, n₂ = 5; gcd(3, 5) = 1; Product N = 3 × 5 = 15)." },
+        { label: "2. Compute Partial Products M_i", detail: "M₁ = N / n₁ = 15 / 3 = 5. M₂ = N / n₂ = 15 / 5 = 3." },
+        { label: "3. Compute Inverses y_i", detail: "y₁ = 5⁻¹ mod 3 = 2⁻¹ mod 3 = 2. y₂ = 3⁻¹ mod 5 = 2." },
+        { label: "4. Assemble via Constructive Formula", detail: "x = (a₁ M₁ y₁ + a₂ M₂ y₂) mod N = (2 × 5 × 2 + 3 × 3 × 2) mod 15 = (20 + 18) mod 15 = 38 mod 15 = 8." },
+        { label: "5. Verify Congruences", detail: "8 mod 3 = 2; 8 mod 5 = 3. Both congruences satisfied! Unique solution modulo 15 is x = 8." },
+      ],
+      outcome: "Chinese Remainder Theorem reconstructs simultaneous congruences uniquely.",
+    },
+    references: [
+      {
+        title: "Dan Boneh, DeMillo & Lipton: On the Importance of Eliminating Errors in Cryptographic Computations (Bellcore Attack, 1997)",
+        source: "Journal of Cryptology",
+        url: "https://doi.org/10.1007/s001450010016",
+        description: "The historic paper demonstrating how a single computational fault in RSA-CRT breaks private keys.",
+        type: "paper",
+      },
+    ],
+    toolId: "crt-multi",
+    glossary: [
+      { term: "Chinese Remainder Theorem (CRT)", def: "A theorem that gives a unique solution to simultaneous congruences with pairwise coprime moduli." },
+      { term: "Fault Injection Attack", def: "A physical side-channel attack where environmental stress (voltage, clock, radiation) causes computational errors that leak secrets." },
+    ],
+  },
+  {
+    id: "discrete-log",
+    trackId: "numbertheory",
+    title: "The discrete logarithm problem",
+    subtitle: "Easy forwards, hard backwards",
+    formula: {
+      expr: "Given generator g, modulus p, and target h: find private integer x such that gˣ ≡ h (mod p)",
+      badge: "DLP Trapdoor",
+      note: "Computing gˣ mod p takes milliseconds via repeated squaring; finding x given g, h, and p is believed to be computationally intractable for large prime groups.",
+    },
+    body: [
+      "In elementary high-school algebra, solving the exponential equation b^x = y is straightforward: take the ordinary real logarithm x = log_b(y). Over the real numbers, logarithms are continuous, smooth, and easily calculated with numerical approximations.",
+      "The Discrete Logarithm Problem (DLP): In modular arithmetic over a finite cyclic group ℤ_p*, the smooth continuity of real numbers vanishes completely. The powers g¹, g², g³, ... mod p jump erratically and pseudo-randomly across the entire field like a cryptographic scrambler. Given base generator g, prime modulus p, and target value h, finding an integer x such that gˣ ≡ h mod p is the Discrete Logarithm Problem. While computing gˣ mod p takes a fraction of a millisecond using binary square-and-multiply, calculating the exponent x is believed to be computationally intractable for cryptographically sized groups.",
+      "The Attack Landscape: 1) Generic Algorithms (Baby-step Giant-step & Pollard's Rho): Work in any arbitrary group by searching for collisions in O(√n) operations. For a 256-bit prime-order group, generic attacks require 2¹²⁸ operations—completely secure; 2) Pohlig-Hellman Algorithm: If the group order p − 1 is smooth (factors into small primes), Pohlig-Hellman solves the discrete log in each small subgroup and combines them via CRT, breaking the cipher in seconds; 3) Index Calculus: A sub-exponential algorithm running in L_p[1/3] time that exploits linear relations between small prime factors. Index calculus works in finite fields ℤ_p*, forcing finite-field Diffie-Hellman to use 2048 to 3072-bit primes.",
+      "Why Elliptic Curves Won: Index calculus requires numbers to factor over a 'factor base' of small primes. Points on an elliptic curve cannot be factored into smaller prime points! Because index calculus completely fails on elliptic curves, the best classical attack against ECC is Pollard's Rho, which requires fully exponential time O(√n). This mathematical reality is why 256-bit Elliptic Curve Cryptography provides the identical security of 3072-bit finite-field Diffie-Hellman.",
+    ],
+    keyPoints: [
+      "Forward direction (modular exponentiation) is O(log x); reverse direction (discrete log) is intractable.",
+      "Foundation of Diffie-Hellman, ElGamal encryption, DSA, and Elliptic Curve Cryptography.",
+      "Generic algorithms (Pollard's rho) require O(√n) time.",
+      "Index calculus attacks finite fields in sub-exponential time, but fails completely on elliptic curves.",
+    ],
+    pitfalls: [
+      "Using non-prime-order subgroups: allows small-subgroup confinement attacks where the attacker forces the shared secret into an easily brute-forced small subgroup.",
+      "Believing 1024-bit Diffie-Hellman is secure: the Logjam attack demonstrated that nation-state computing clusters precompute discrete logs for standardized 1024-bit primes.",
+    ],
+    workedExample: {
+      title: "Baby-Step Giant-Step on g = 2, h = 9, p = 11",
+      steps: [
+        { label: "1. Parameter Selection", detail: "Target: find x with 2ˣ ≡ 9 mod 11. Choose step size m = ⌈√11⌉ = 4. Let x = i·m + j, with 0 ≤ i, j < 4." },
+        { label: "2. Baby Steps Table (Compute gʲ mod p)", detail: "j=0: 2⁰=1; j=1: 2¹=2; j=2: 2²=4; j=3: 2³=8. Stored Hash Table: {1:0, 2:1, 4:2, 8:3}." },
+        { label: "3. Giant Steps Multiplier", detail: "Compute factor g^(−m) = (2⁴)⁻¹ mod 11 = 16⁻¹ mod 11 = 5⁻¹ mod 11 = 9." },
+        { label: "4. Giant Steps Loop (Compute h · (g^(−m))ⁱ mod p)", detail: "i=0: 9 × 9⁰ = 9 (not in table); i=1: 9 × 9¹ = 81 ≡ 4 mod 11. Collision found in baby steps at value 4 (j=2)!" },
+        { label: "5. Recover Exponent x", detail: "x = i·m + j = (1 × 4) + 2 = 6. Verification: 2⁶ = 64 = (5 × 11) + 9 ≡ 9 mod 11. Solved in O(√p) time!" },
+      ],
+      outcome: "Discrete logarithm x = 6 solved in √p operations using time-memory trade-off.",
+    },
+    references: [
+      {
+        title: "Daniel J. Bernstein: Fast Computation of Discrete Logarithms",
+        source: "DJB Publications",
+        url: "https://cr.yp.to/papers.html",
+        description: "Analysis of baby-step giant-step, Pollard's rho, and index-calculus algorithms.",
+        type: "paper",
+      },
+    ],
+    toolId: "baby-step-giant-step",
+    glossary: [
+      { term: "Discrete Logarithm", def: "An integer x satisfying the equation gˣ ≡ h (mod p) for given group elements g and h." },
+      { term: "Index Calculus", def: "A sub-exponential family of algorithms for computing discrete logarithms in certain groups such as the multiplicative group of a finite field." },
+    ],
+  },
+  {
+    id: "randomness",
+    trackId: "numbertheory",
+    title: "Randomness and entropy",
+    subtitle: "The most commonly broken component",
+    formula: {
+      expr: "Shannon Entropy: H(X) = −∑ P(xᵢ) · log₂ P(xᵢ)  |  Min-Entropy: H_∞(X) = −log₂(max P(xᵢ))",
+      badge: "Information Theory",
+      note: "Entropy measures unpredictable uncertainty. A 128-bit symmetric key is only as strong as the true physical entropy of the random bit generator that produced it.",
+    },
+    body: [
+      "In 1948, Claude Shannon introduced Information Theory and mathematically defined Entropy: a metric measuring the average information content, unpredictability, and uncertainty of a random variable. In cybersecurity, unpredictable randomness is the oxygen that sustains all cryptographic guarantees: without true randomness, keys are guessable, initialization vectors repeat, nonces collide, and asymmetric signatures leak private keys.",
+      "CSPRNG vs. PRNG (The Critical Distinction): General-purpose pseudorandom number generators (PRNGs like C's `rand()`, JavaScript's `Math.random()`, or Java's `java.util.Random`) are Linear Congruential Generators (LCGs) designed strictly for Monte Carlo simulations and video games. They are deterministic, periodic, and completely predictable: observing just 2 or 3 consecutive outputs allows an attacker to solve the internal linear equations and predict all past and future outputs! Cryptography strictly requires a Cryptographically Secure Pseudorandom Number Generator (CSPRNG, such as Linux `/dev/urandom`, `getrandom()`, or Web Crypto `crypto.getRandomValues()`), which passes the Next-Bit Test (given the first k bits, no polynomial-time algorithm can predict the (k+1)-th bit with probability > 0.5).",
+      "Entropy Harvesting: A CSPRNG functions by continuously harvesting physical entropy from non-deterministic hardware events: keyboard stroke timings, mouse jitter, thermal diode fluctuations, interrupt arrival intervals, and CPU instruction cycle counters (such as Intel `RDRAND` / `RDSEED`). This raw physical noise is fed through a cryptographic conditioning function (like SHA-256 or ChaCha20) to maintain an internal entropy pool, which seeds a Deterministic Random Bit Generator (DRBG according to NIST SP 800-90A).",
+      "Historical Entropy Catastrophes: Cryptographic algorithms are rarely broken at the mathematical cipher level; they break because developers fail to seed them properly. In 2008, a maintainer in the Debian Linux distribution removed two lines of code in OpenSSL that Valgrind flagged as using 'uninitialized memory'. Those two lines were the primary entropy source! The bug reduced the entire space of generated SSH host keys and TLS certificates to only 32,767 possibilities (based solely on the process ID), allowing global precomputation and remote server compromise across the world.",
+    ],
+    keyPoints: [
+      "Always use the operating system CSPRNG (`/dev/urandom`, `getrandom()`, `crypto.getRandomValues()`).",
+      "NEVER use `Math.random()` or standard library `rand()` for keys, tokens, nonces, or salts.",
+      "Entropy reflects the unpredictability of the generation process, not the visual complexity of the string.",
+      "A 256-bit key generated with only 32 bits of physical entropy has an effective security of only 32 bits.",
+    ],
+    pitfalls: [
+      "Using `Math.random()` to generate password reset tokens or session identifiers: attackers predict future tokens by reversing the internal XorShift128+ state.",
+      "Bootstrapping embedded IoT devices and generating cryptographic keys at first boot before the kernel entropy pool has gathered sufficient physical noise.",
+    ],
+    workedExample: {
+      title: "Measuring Shannon Entropy of a 4-Digit PIN vs 128-bit Key",
+      steps: [
+        { label: "1. 4-Digit Numerical PIN", detail: "10,000 possibilities. Entropy H = log₂(10000) ≈ 13.29 bits. A GPU cracks it in 0.0001 seconds." },
+        { label: "2. 8-Char Alphanumeric Password", detail: "62⁸ ≈ 2.18 × 10¹⁴ possibilities. Maximum theoretical entropy H = log₂(62⁸) ≈ 47.6 bits." },
+        { label: "3. Typical Human Password", detail: "Due to dictionary words, common vowel patterns, and predictable rules, true human entropy is typically only ~25 to 30 bits." },
+        { label: "4. 128-bit CSPRNG Key", detail: "2¹²⁸ ≈ 3.4 × 10³⁸ possibilities. Exactly 128.0 bits of uniform, unguessable Shannon entropy." },
+      ],
+      outcome: "Cryptographic strength is determined by mathematical entropy, not human visual complexity.",
+    },
+    references: [
+      {
+        title: "RFC 4086: Randomness Requirements for Security",
+        source: "IETF RFC",
+        url: "https://www.ietf.org/rfc/rfc4086.txt",
+        description: "Official guidelines for hardware entropy harvesting, mixing functions, and CSPRNG design.",
+        type: "standard",
+      },
+      {
+        title: "NIST SP 800-90A: Recommendation for Random Number Generation Using Deterministic Random Bit Generators",
+        source: "NIST CSRC",
+        url: "https://doi.org/10.6028/NIST.SP.800-90Ar1",
+        description: "Federal standard specifying HMAC-DRBG, Hash-DRBG, and CTR-DRBG.",
+        type: "standard",
+      },
+    ],
+    toolId: "random-key",
+    glossary: [
+      { term: "Shannon Entropy", def: "A measure of the unpredictability or information content of a random variable." },
+      { term: "CSPRNG", def: "Cryptographically Secure Pseudorandom Number Generator: a pseudorandom number generator with properties making it suitable for use in cryptography." },
+    ],
+  },
+];

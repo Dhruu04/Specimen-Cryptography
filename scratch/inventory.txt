@@ -1,0 +1,617 @@
+TOTAL TRACKS: 8
+TOTAL LESSONS: 75
+TOTAL TOOLS: 81
+
+
+========================================
+TRACK: [classical] Classical Ciphers (13 lessons)
+========================================
+Blurb: Substitution, transposition and the birth of cryptanalysis
+Intro: Start where the field started. These ciphers are all breakable by hand, which is exactly why they teach so well: every weakness you find here has a modern descendant.
+
+  * LESSON [what-is-cryptography] "What cryptography actually promises"
+    Tool: None
+    Worked Example: "Analyzing CIA Guarantees on a Tampered Message" (4 steps)
+  * LESSON [caesar] "The Caesar cipher"
+    Tool: caesar
+    Worked Example: "Encrypting and Decrypting with Key k = 3" (4 steps)
+  * LESSON [atbash-rot13] "Atbash and ROT13"
+    Tool: atbash
+    Worked Example: "Demonstrating the ROT13 Involution" (2 steps)
+  * LESSON [affine] "The affine cipher"
+    Tool: affine
+    Worked Example: "Encrypting with a = 5, b = 8 and Decrypting via Modular Inverse" (4 steps)
+  * LESSON [vigenere] "The Vigenère cipher"
+    Tool: vigenere
+    Worked Example: "Kasiski Examination Key-Length Recovery" (4 steps)
+  * LESSON [autokey] "The autokey cipher"
+    Tool: autokey
+    Worked Example: "Autokey Encryption with Primer 'QUEEN'" (4 steps)
+  * LESSON [playfair] "The Playfair cipher"
+    Tool: playfair
+    Worked Example: "Encrypting Digraph 'HE' on a Keyword Grid" (4 steps)
+  * LESSON [transposition] "Transposition ciphers"
+    Tool: columnar
+    Worked Example: "Columnar Transposition with Key 'ZEBRA'" (4 steps)
+  * LESSON [frequency-analysis] "Breaking ciphers with frequency analysis"
+    Tool: frequency
+    Worked Example: "Calculating Index of Coincidence on a Sample Text" (4 steps)
+  * LESSON [one-time-pad] "The one-time pad"
+    Tool: otp
+    Worked Example: "The Two-Time Pad Catastrophe (Key Cancellation)" (4 steps)
+  * LESSON [hill-cipher] "The Hill cipher"
+    Tool: hill-cipher
+    Worked Example: "Encrypting with a 2×2 Hill Matrix" (4 steps)
+  * LESSON [enigma] "The Enigma machine"
+    Tool: enigma
+    Worked Example: "Exploiting the Reflector Flaw E(x) ≠ x via Crib Alignment" (4 steps)
+  * LESSON [baconian] "Bacon's cipher & steganography"
+    Tool: baconian
+    Worked Example: "Encoding 'GO' into Typography via Bacon's 5-Bit Alphabet" (3 steps)
+
+========================================
+TRACK: [encoding] Encoding & Representation (7 lessons)
+========================================
+Blurb: Base64, hex, binary and why none of it is encryption
+Intro: Before a cipher can touch your message it has to become bytes. This track covers the representations every tool and protocol assumes you understand.
+
+  * LESSON [encoding-vs-encryption] "Encoding is not encryption"
+    Tool: base64
+    Worked Example: "Contrasting Base64 Encoding vs AES Encryption" (3 steps)
+  * LESSON [bits-and-bytes] "Bits, bytes and character sets"
+    Tool: binary
+    Worked Example: "UTF-8 Multi-Byte Breakdown for 'Crypto €'" (3 steps)
+  * LESSON [base64-detail] "How Base64 works"
+    Tool: base64
+    Worked Example: "Encoding 'Man' into Base64 Step-by-Step" (4 steps)
+  * LESSON [hex-and-bases] "Hexadecimal and other bases"
+    Tool: radix
+    Worked Example: "Converting Byte 0xA7 to Binary and Decimal" (4 steps)
+  * LESSON [base58-base32] "Base58 and Base32 representations"
+    Tool: base58
+    Worked Example: "Decoding a Base32 2FA Secret Key" (4 steps)
+  * LESSON [endianness] "Endianness & machine byte order"
+    Tool: endianness
+    Worked Example: "Comparing 32-bit Integer 0x0A0B0C0D in Memory" (3 steps)
+  * LESSON [url-encoding] "Percent-encoding and injection risk"
+    Tool: url
+    Worked Example: "Tracing Double-Encoding Attack Payload" (5 steps)
+
+========================================
+TRACK: [symmetric] Symmetric Encryption (6 lessons)
+========================================
+Blurb: XOR, DES, AES, modes of operation and stream ciphers
+Intro: One shared key, enormous speed, and a long list of ways to misuse it. This is the machinery that protects almost all data at rest and in transit.
+
+  * LESSON [symmetric-basics] "Symmetric encryption"
+    Tool: random-key
+    Worked Example: "Measuring Shannon Avalanche Effect Across Ciphers" (5 steps)
+  * LESSON [xor] "XOR, the atom of symmetric crypto"
+    Tool: xor
+    Worked Example: "Executing a Bit-Flipping Attack on Unauthenticated XOR" (4 steps)
+  * LESSON [des-feistel] "DES and the Feistel network"
+    Tool: des-feistel
+    Worked Example: "One Feistel Round Step-by-Step" (5 steps)
+  * LESSON [aes] "AES, the modern standard"
+    Tool: aes-state
+    Worked Example: "Tracing the Four Transformations of an AES Round" (4 steps)
+  * LESSON [modes] "Modes of operation"
+    Tool: block-modes
+    Worked Example: "The Classic Vaudenay CBC Padding Oracle Attack" (4 steps)
+  * LESSON [stream-ciphers] "Stream ciphers & ARX Quarter-Rounds"
+    Tool: chacha20
+    Worked Example: "Executing the ChaCha20 Quarter-Round Function" (5 steps)
+
+========================================
+TRACK: [hashing] Hashing & Integrity (7 lessons)
+========================================
+Blurb: Digests, HMAC, password storage and Merkle trees
+Intro: One-way functions give you fingerprints rather than secrecy. Get them right and you get integrity, authentication and safe password storage.
+
+  * LESSON [hash-properties] "What a cryptographic hash guarantees"
+    Tool: hash
+    Worked Example: "Contrasting Pre-Image vs Collision Attack Complexity" (4 steps)
+  * LESSON [hash-families] "MD5, SHA-1, SHA-2 and SHA-3"
+    Tool: hash
+    Worked Example: "The SHAttered Attack Collision (Google / CWI 2017)" (5 steps)
+  * LESSON [avalanche] "The avalanche effect"
+    Tool: avalanche
+    Worked Example: "Measuring Avalanche on SHA-256 with 1-Bit Difference" (5 steps)
+  * LESSON [hmac] "HMAC and message authentication"
+    Tool: hmac
+    Worked Example: "Executing a Length-Extension Attack on Naive H(Key ‖ Message)" (5 steps)
+  * LESSON [password-hashing] "Storing passwords properly"
+    Tool: pbkdf2
+    Worked Example: "Argon2id Password Storage Structure" (4 steps)
+  * LESSON [merkle-trees] "Merkle trees and commitments"
+    Tool: merkle-tree
+    Worked Example: "Verifying an Inclusion Proof with 4 Leaves (N=4)" (4 steps)
+  * LESSON [birthday-paradox] "The Birthday paradox & hash collisions"
+    Tool: birthday-attack
+    Worked Example: "Deriving the 23-Person Birthday Problem" (4 steps)
+
+========================================
+TRACK: [publickey] Public Key Cryptography (7 lessons)
+========================================
+Blurb: Diffie–Hellman, RSA, elliptic curves, signatures and TLS
+Intro: Two keys instead of one, built on problems nobody knows how to solve efficiently. This is what makes secure communication with strangers possible.
+
+  * LESSON [asymmetric-idea] "The public-key idea"
+    Tool: diffie-hellman
+    Worked Example: "Hybrid Encryption Architecture Flow" (4 steps)
+  * LESSON [diffie-hellman] "Diffie–Hellman key exchange"
+    Tool: dh-mitm
+    Worked Example: "Diffie-Hellman Exchange with Small Numbers (p = 23, g = 5)" (4 steps)
+  * LESSON [rsa] "RSA"
+    Tool: rsa-suite
+    Worked Example: "RSA Key Generation and Encryption with Small Primes" (6 steps)
+  * LESSON [ecc] "Elliptic-curve cryptography"
+    Tool: ecc-point
+    Worked Example: "How Sony PS3 Master Key was Extracted via ECDSA Nonce Reuse" (4 steps)
+  * LESSON [signatures] "Digital signatures"
+    Tool: rsa-suite
+    Worked Example: "Verifying an Ed25519 Signature" (4 steps)
+  * LESSON [pki-tls] "Certificates, PKI and TLS"
+    Tool: tls-handshake
+    Worked Example: "TLS 1.3 1-RTT Handshake Trace" (4 steps)
+  * LESSON [post-quantum] "Post-quantum cryptography overview"
+    Tool: quantum-threat
+    Worked Example: "Hybrid Post-Quantum Key Exchange (X25519 + ML-KEM)" (4 steps)
+
+========================================
+TRACK: [postquantum] Post-Quantum Cryptography (13 lessons)
+========================================
+Blurb: Lattice cryptography, LWE, Kyber, Dilithium, Falcon, McEliece, hash signatures & quantum threats
+Intro: When quantum computers scale, RSA and ECC fail in polynomial time under Shor's algorithm. This track explores the mathematical frontiers that replace them: high-dimensional lattices, error-correcting codes, multivariate quadratics, and stateless hash trees.
+
+  * LESSON [quantum-foundations] "Quantum Computing & Cryptographic Threats"
+    Tool: pqc-threat-calculator
+    Worked Example: "Quantum Superposition Measurement Probability" (4 steps)
+  * LESSON [shor-grover-threats] "Shor's vs. Grover's Algorithms"
+    Tool: pqc-threat-calculator
+    Worked Example: "Shor's Period-Finding Algorithm on N = 15 with Base a = 7" (4 steps)
+  * LESSON [lattice-foundations] "Lattice-Based Cryptography Foundations"
+    Tool: pqc-lattice-visualizer
+    Worked Example: "2D Lattice Gram-Schmidt Orthogonalization" (4 steps)
+  * LESSON [lwe-module-lwe] "Learning With Errors (LWE & Module-LWE)"
+    Tool: pqc-lwe-simulator
+    Worked Example: "Learning With Errors (LWE) Single-Bit Decryption (q = 17)" (4 steps)
+  * LESSON [fips203-ml-kem] "FIPS 203: ML-KEM (CRYSTALS-Kyber)"
+    Tool: pqc-kyber-simulator
+    Worked Example: "Kyber Ring Modulus and Polynomial Representation" (4 steps)
+  * LESSON [fips204-ml-dsa] "FIPS 204: ML-DSA (CRYSTALS-Dilithium)"
+    Tool: pqc-threat-calculator
+    Worked Example: "Dilithium Rejection Sampling Mechanics" (4 steps)
+  * LESSON [fips206-fn-dsa] "FIPS 206: FN-DSA (Falcon)"
+    Tool: pqc-threat-calculator
+    Worked Example: "Falcon NTRU Equation and Basis Geometry" (4 steps)
+  * LESSON [code-based-mceliece] "Code-Based Cryptography & Classic McEliece"
+    Tool: pqc-mceliece
+    Worked Example: "McEliece Error-Correction Encryption Flow" (4 steps)
+  * LESSON [hash-signatures] "Hash-Based Digital Signatures (SPHINCS+)"
+    Tool: pqc-lamport-merkle
+    Worked Example: "Lamport One-Time Signature (OTS) on 1 Byte (0xA5 = 10100101₂)" (4 steps)
+  * LESSON [multivariate-isogeny] "Multivariate & Isogeny Cryptography"
+    Tool: pqc-threat-calculator
+    Worked Example: "The Castryck-Decru Attack on SIDH / SIKE (2022)" (4 steps)
+  * LESSON [pqc-migration-hybrid] "PQC Migration & Hybrid Schemes"
+    Tool: tls-handshake
+    Worked Example: "X25519Kyber768 Hybrid Key Derivation in TLS 1.3" (4 steps)
+  * LESSON [lightweight-crypto] "Lightweight Cryptography (Stallings Ch. 14)"
+    Tool: simplified-aes
+    Worked Example: "ASCON-128 Sponge State and Permutation" (4 steps)
+  * LESSON [saes-appendix-d] "Simplified AES (Stallings Appendix D)"
+    Tool: simplified-aes
+    Worked Example: "S-AES MixColumns on State [[A, 2], [3, F]]" (4 steps)
+
+========================================
+TRACK: [numbertheory] Number Theory (11 lessons)
+========================================
+Blurb: Modular arithmetic, Euclid, primes, totients, groups and fields
+Intro: The mathematics underneath everything above. Each concept here appears directly inside a cipher — nothing is included for its own sake.
+
+  * LESSON [divisibility] "Divisibility and the division algorithm"
+    Tool: gcd
+    Worked Example: "Division Algorithm on Negative Dividends" (4 steps)
+  * LESSON [modular-arithmetic] "Modular arithmetic"
+    Tool: mod-pow
+    Worked Example: "Fast Modular Exponentiation via Repeated Squaring (7¹²⁸ mod 13)" (3 steps)
+  * LESSON [euclid] "The Euclidean algorithm"
+    Tool: euclid-tableau
+    Worked Example: "Extended Euclidean Algorithm for gcd(240, 46)" (6 steps)
+  * LESSON [modular-inverse] "Modular inverses"
+    Tool: mod-inverse
+    Worked Example: "Calculating Modular Inverse 17⁻¹ mod 3120 for RSA" (5 steps)
+  * LESSON [primes] "Primes and primality testing"
+    Tool: miller-rabin
+    Worked Example: "Miller-Rabin Primality Test on n = 221 with Base a = 174" (4 steps)
+  * LESSON [factoring] "The factoring problem"
+    Tool: factorize
+    Worked Example: "Fermat's Factorization Method on Close Primes" (5 steps)
+  * LESSON [fermat-euler] "Fermat, Euler and totients"
+    Tool: totient
+    Worked Example: "Euler's Totient Calculation on Composite n = 360" (4 steps)
+  * LESSON [groups-fields] "Groups, generators and finite fields"
+    Tool: primitive-roots
+    Worked Example: "Galois Field GF(2⁸) Multiplication by x (xtime in AES)" (4 steps)
+  * LESSON [crt] "The Chinese Remainder Theorem"
+    Tool: crt-multi
+    Worked Example: "Solving a 2-Congruence System via CRT" (5 steps)
+  * LESSON [discrete-log] "The discrete logarithm problem"
+    Tool: baby-step-giant-step
+    Worked Example: "Baby-Step Giant-Step on g = 2, h = 9, p = 11" (5 steps)
+  * LESSON [randomness] "Randomness and entropy"
+    Tool: random-key
+    Worked Example: "Measuring Shannon Entropy of a 4-Digit PIN vs 128-bit Key" (3 steps)
+
+========================================
+TRACK: [security] Cyber Security Practice (11 lessons)
+========================================
+Blurb: Threat models, authentication, web attacks, side channels, key management
+Intro: Cryptography rarely fails at the mathematics. This track covers the operational reality where systems actually break.
+
+  * LESSON [cia-triad] "The CIA triad and threat modelling"
+    Tool: None
+    Worked Example: "STRIDE Threat Modeling of an IoT Pacemaker Telemetry Gateway" (6 steps)
+  * LESSON [authn-authz] "Authentication and authorisation"
+    Tool: password-entropy
+    Worked Example: "Preventing IDOR / BOLA at the Data Access Layer" (4 steps)
+  * LESSON [passwords] "Passwords, entropy and cracking"
+    Tool: password-entropy
+    Worked Example: "Measuring Password Search Space & Modern GPU Cracking Speed" (5 steps)
+  * LESSON [web-attacks] "Common web vulnerabilities"
+    Tool: None
+    Worked Example: "Neutralizing SQL Injection via Parameterized Prepared Statements" (5 steps)
+  * LESSON [side-channels] "Side-channel attacks"
+    Tool: timing-attack
+    Worked Example: "Recovering a 32-Byte Authentication Tag via Early-Exit Timing Leaks" (5 steps)
+  * LESSON [padding-oracle] "Padding oracle attacks"
+    Tool: padding-oracle
+    Worked Example: "CBC Plaintext Byte Decryption via Vaudenay's PKCS#7 Padding Oracle" (6 steps)
+  * LESSON [zero-knowledge-proofs] "Zero-knowledge proofs"
+    Tool: zkp-schnorr
+    Worked Example: "Schnorr Identification Protocol (Proving Discrete Log Knowledge)" (5 steps)
+  * LESSON [key-management] "Key management"
+    Tool: random-key
+    Worked Example: "Envelope Encryption Lifecycle in Cloud KMS Architecture" (5 steps)
+  * LESSON [network-security] "Network and transport security"
+    Tool: None
+    Worked Example: "TLS 1.3 1-RTT Handshake with Ephemeral Diffie-Hellman Key Exchange" (5 steps)
+  * LESSON [replay-attacks] "Replay attacks & freshness defenses"
+    Tool: replay-attack
+    Worked Example: "Defeating REST API Transaction Replay with Atomic Nonce Caching" (5 steps)
+  * LESSON [opsec] "Operational security and incident response"
+    Tool: None
+    Worked Example: "Ransomware Incident Response: 15-Minute MTTD & MTTR Timeline" (5 steps)
+
+
+========================================
+ALL TOOLS (81 TOTAL)
+========================================
+* TOOL [caesar] "Caesar cipher" (trackId: classical)
+  Tagline: Shift every letter down the alphabet
+  Output: Result
+  Fields (3): text [Text] (type: text, default: "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG"); shift [Shift (0–25)] (type: number, default: "3"); mode [Direction] (type: select, default: "encrypt")
+* TOOL [rot13] "ROT13" (trackId: classical)
+  Tagline: The 13-shift involution
+  Output: Result
+  Fields (1): text [Text] (type: text, default: "URYYB JBEYQ")
+* TOOL [atbash] "Atbash cipher" (trackId: classical)
+  Tagline: Reverse the alphabet (A↔Z, B↔Y)
+  Output: Result
+  Fields (1): text [Text] (type: text, default: "SHERLOCK")
+* TOOL [affine] "Affine cipher" (trackId: classical)
+  Tagline: Multiply and shift mod 26: E(x) = (ax + b) mod 26
+  Output: Result
+  Fields (4): text [Text] (type: text, default: "AFFINE CIPHER"); a [Multiplier a (must be coprime to 26)] (type: number, default: "5"); b [Shift b] (type: number, default: "8"); mode [Direction] (type: select, default: "encrypt")
+* TOOL [vigenere] "Vigenère cipher" (trackId: classical)
+  Tagline: Polyalphabetic substitution with a repeating keyword
+  Output: Result
+  Fields (3): text [Text] (type: text, default: "ATTACK AT DAWN"); key [Key] (type: text, default: "LEMON"); mode [Direction] (type: select, default: "encrypt")
+* TOOL [autokey] "Autokey cipher" (trackId: classical)
+  Tagline: Vigenère with plaintext extending the key
+  Output: Result
+  Fields (3): text [Text] (type: text, default: "MEET AT MIDNIGHT"); primer [Primer key] (type: text, default: "QUEEN"); mode [Direction] (type: select, default: "encrypt")
+* TOOL [playfair] "Playfair cipher" (trackId: classical)
+  Tagline: Encrypt digraphs on a 5×5 key square
+  Output: Result
+  Fields (3): text [Text] (type: text, default: "HIDE THE GOLD IN THE TREE STUMP"); key [Key] (type: text, default: "MONARCHY"); mode [Direction] (type: select, default: "encrypt")
+* TOOL [rail-fence] "Rail fence cipher" (trackId: classical)
+  Tagline: Zig-zag transposition across rails
+  Output: Result
+  Fields (3): text [Text] (type: text, default: "DEFEND THE EAST WALL"); rails [Rails] (type: number, default: "3"); mode [Direction] (type: select, default: "encrypt")
+* TOOL [columnar] "Columnar transposition" (trackId: classical)
+  Tagline: Rearrange text into columns ordered by key letters
+  Output: Result
+  Fields (3): text [Text] (type: text, default: "THE TREASURE IS BURIED AT THE COVE"); key [Key] (type: text, default: "ZEBRA"); mode [Direction] (type: select, default: "encrypt")
+* TOOL [otp] "One-Time Pad (Vernam)" (trackId: classical)
+  Tagline: Information-theoretically unbreakable cipher (Shannon 1949)
+  Output: Ciphertext / Plaintext
+  Fields (3): text [Text] (type: text, default: "TOP SECRET MESSAGE"); key [Key (Pad)] (type: text, default: "XMCKLPOIQAZWSXEDCRF"); mode [Direction] (type: select, default: "encrypt")
+* TOOL [hill-cipher] "Hill cipher (2×2)" (trackId: classical)
+  Tagline: Polygraphic matrix linear algebra over ℤ/26ℤ
+  Output: Output
+  Fields (6): text [Text] (type: text, default: "HELP"); k00 [Matrix [0,0]] (type: number, default: "3"); k01 [Matrix [0,1]] (type: number, default: "3"); k10 [Matrix [1,0]] (type: number, default: "2"); k11 [Matrix [1,1]] (type: number, default: "5"); mode [Direction] (type: select, default: "encrypt")
+* TOOL [enigma] "Enigma machine" (trackId: classical)
+  Tagline: WWII 3-rotor (I, II, III) + Reflector B + Plugboard simulator
+  Output: Ciphertext
+  Fields (3): text [Text] (type: text, default: "WETTERBERICHT"); rotors [Rotor positions (e.g. AAA)] (type: text, default: "AAA"); plugs [Plugboard pairs (e.g. AB CD)] (type: text, default: "AB CD")
+* TOOL [baconian] "Baconian cipher" (trackId: classical)
+  Tagline: Francis Bacon's 5-bit steganographic binary alphabet
+  Output: Result
+  Fields (2): text [Text] (type: text, default: "KNOWLEDGE"); mode [Direction] (type: select, default: "encode")
+* TOOL [frequency] "Frequency analysis & χ²" (trackId: classical)
+  Tagline: Count letters, plot against English frequencies, calculate χ²
+  Output: Analysis
+  Fields (1): text [Text to analyze] (type: textarea, default: "WKH TXLFN EURZQ IRA MXPSV RYHU WKH ODCB GRJ")
+* TOOL [caesar-bruteforce] "Caesar cracker" (trackId: classical)
+  Tagline: Try all 25 shifts at once
+  Output: All shifts
+  Fields (1): text [Ciphertext] (type: text, default: "WKH TXLFN EURZQ IRA")
+* TOOL [morse] "Morse code" (trackId: classical)
+  Tagline: Dots and dashes of telegraphy
+  Output: Result
+  Fields (2): text [Text] (type: text, default: "SOS"); mode [Direction] (type: select, default: "encode")
+* TOOL [xor-cipher] "XOR cipher" (trackId: classical)
+  Tagline: The fundamental bitwise building block of modern crypto
+  Output: Result
+  Fields (3): text [Text] (type: text, default: "HELLO"); key [Key] (type: text, default: "KEY"); mode [Direction] (type: select, default: "encrypt")
+* TOOL [base64] "Base64" (trackId: encoding)
+  Tagline: Bytes to 64 ASCII characters
+  Output: Result
+  Fields (2): text [Input] (type: text, default: "Hello, cryptography!"); mode [Direction] (type: select, default: "encode")
+* TOOL [base58] "Base58 (Bitcoin)" (trackId: encoding)
+  Tagline: Binary-to-text without ambiguous characters (0, O, I, l)
+  Output: Base58 Output
+  Fields (2): text [Input Text / Base58] (type: text, default: "Satoshi Nakamoto"); mode [Direction] (type: select, default: "encode")
+* TOOL [base32] "Base32 (RFC 4648)" (trackId: encoding)
+  Tagline: Case-insensitive encoding used in 2FA / TOTP secrets
+  Output: Base32 Output
+  Fields (2): text [Input Text / Base32] (type: text, default: "The quick brown fox"); mode [Direction] (type: select, default: "encode")
+* TOOL [endianness] "Endianness inspector" (trackId: encoding)
+  Tagline: Big-Endian vs Little-Endian byte order representation
+  Output: Endian Analysis
+  Fields (1): hex [Hex Bytes (e.g. 01020304)] (type: text, default: "01020304")
+* TOOL [hex] "Hexadecimal (Base 16)" (trackId: encoding)
+  Tagline: Two characters per byte
+  Output: Result
+  Fields (2): text [Input] (type: text, default: "Crypto"); mode [Direction] (type: select, default: "encode")
+* TOOL [binary] "Binary (Base 2)" (trackId: encoding)
+  Tagline: The raw bits of your UTF-8 bytes
+  Output: Result
+  Fields (2): text [Input] (type: text, default: "ABC"); mode [Direction] (type: select, default: "encode")
+* TOOL [decimal] "Decimal bytes" (trackId: encoding)
+  Tagline: Bytes as numbers 0–255
+  Output: Result
+  Fields (2): text [Input] (type: text, default: "Hi!"); mode [Direction] (type: select, default: "encode")
+* TOOL [url] "URL percent-encoding" (trackId: encoding)
+  Tagline: Safe transmission in HTTP query parameters
+  Output: Result
+  Fields (2): text [Input] (type: text, default: "hello world & foo=bar"); mode [Direction] (type: select, default: "encode")
+* TOOL [radix] "Base / Radix converter" (trackId: encoding)
+  Tagline: Convert any integer between bases 2 and 36
+  Output: Converted number
+  Fields (3): value [Value] (type: text, default: "255"); from [From base] (type: number, default: "10"); to [To base] (type: number, default: "16")
+* TOOL [format-inspector] "Format auto-detector & inspector" (trackId: encoding)
+  Tagline: Intelligent format recognition, Shannon entropy, and cryptographic signature analysis
+  Output: Detection Report
+  Fields (1): text [Input Buffer / Ciphertext / Key / Hash] (type: textarea, default: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+* TOOL [aes] "AES-GCM" (trackId: symmetric)
+  Tagline: Authenticated encryption with WebCrypto
+  Output: Result
+  Fields (3): text [Plaintext or hex payload] (type: text, default: "Secret message to AES encrypt"); pass [Passphrase] (type: text, default: "correct horse battery staple"); mode [Direction] (type: select, default: "encrypt")
+* TOOL [aes-state] "AES State & Rounds visualizer" (trackId: symmetric)
+  Tagline: SubBytes (S-Box), ShiftRows, MixColumns (GF(2⁸)), AddRoundKey
+  Output: Round 1 State Matrix
+  Fields (2): text [16-byte Block Text] (type: text, default: "CRYPTO STUDY LAB"); key [32-char Round Key Hex] (type: text, default: "000102030405060708090a0b0c0d0e0f")
+* TOOL [block-modes] "Block cipher modes" (trackId: symmetric)
+  Tagline: ECB (Penguin effect) vs CBC (IV chaining) vs CTR vs GCM (AEAD)
+  Output: Block Mode Result
+  Fields (3): text [Plaintext] (type: text, default: "ATTACKATDAWNATTACKATDAWN"); mode [Cipher Mode] (type: select, default: "CBC"); iv [IV / Nonce (Hex)] (type: text, default: "fedcba9876543210")
+* TOOL [random-key] "Cryptographic keygen" (trackId: symmetric)
+  Tagline: CSPRNG cryptographically secure random bytes
+  Output: Generated key
+  Fields (2): bytes [Length in bytes] (type: number, default: "32"); fmt [Format] (type: select, default: "hex")
+* TOOL [hash] "Cryptographic hash" (trackId: hashing)
+  Tagline: SHA-256, SHA-512, SHA-1, MD5
+  Output: Digest
+  Fields (2): text [Input text] (type: text, default: "Cryptex"); algo [Algorithm] (type: select, default: "SHA-256")
+* TOOL [hmac] "HMAC" (trackId: hashing)
+  Tagline: Keyed-hash message authentication code
+  Output: MAC Tag
+  Fields (3): text [Message] (type: text, default: "transfer $500 to Bob"); key [Secret key] (type: text, default: "supersecretkey"); algo [Hash algorithm] (type: select, default: "SHA-256")
+* TOOL [avalanche] "Avalanche effect" (trackId: hashing)
+  Tagline: Flip one bit, watch 50% of hash bits flip
+  Output: Comparison
+  Fields (2): text1 [Input 1] (type: text, default: "The quick brown fox"); text2 [Input 2 (change one letter)] (type: text, default: "The quick brown foy")
+* TOOL [merkle-tree] "Merkle tree & audit proofs" (trackId: hashing)
+  Tagline: Hierarchical cryptographic hash trees with O(log N) verification
+  Output: Tree Root & Audit Proof
+  Fields (2): leaves [Data Leaves (comma or newline separated)] (type: textarea, default: "Tx1: Alice->Bob 5, Tx2: Bob->Charlie 2, Tx3: Charlie->Dave 1, Tx4: Dave->Eve 4"); verifyIndex [Verify leaf index] (type: number, default: "1")
+* TOOL [birthday-attack] "Birthday paradox & collision calculator" (trackId: hashing)
+  Tagline: Why an n-bit hash offers only n/2 bits of collision resistance
+  Output: Collision Probability
+  Fields (2): bits [Hash Output Size (bits)] (type: number, default: "32"); samples [Number of Generated Hashes (k)] (type: number, default: "77000")
+* TOOL [pbkdf2] "PBKDF2 key derivation" (trackId: hashing)
+  Tagline: Slow, salted password hashing
+  Output: Derived key (Hex)
+  Fields (3): pass [Password] (type: text, default: "correct horse battery staple"); salt [Salt] (type: text, default: "random-salt-1234"); iters [Iterations] (type: number, default: "100000")
+* TOOL [rsa-suite] "RSA complete suite" (trackId: publickey)
+  Tagline: Key generation, encryption, decryption, digital signing & verification
+  Output: RSA Cryptographic Output
+  Fields (5): p [Prime p] (type: number, default: "61"); q [Prime q] (type: number, default: "53"); e [Public exponent e (coprime to φ(n))] (type: number, default: "17"); msg [Integer message m (< n)] (type: number, default: "65"); action [Operation] (type: select, default: "encrypt")
+* TOOL [rsa] "RSA miniature demo" (trackId: publickey)
+  Tagline: Toy RSA arithmetic on small primes
+  Output: RSA Demo
+  Fields (4): p [Prime p] (type: number, default: "61"); q [Prime q] (type: number, default: "53"); e [Exponent e] (type: number, default: "17"); msg [Message m] (type: number, default: "42")
+* TOOL [dh-mitm] "Diffie–Hellman & MITM attack" (trackId: publickey)
+  Tagline: Key exchange and why unauthenticated DH is vulnerable to active interceptors
+  Output: Exchange Status
+  Fields (5): p [Prime modulus p] (type: number, default: "997"); g [Generator g] (type: number, default: "7"); a [Alice private key a] (type: number, default: "123"); b [Bob private key b] (type: number, default: "456"); mitm [Eve active MITM interceptor] (type: select, default: "no")
+* TOOL [diffie-hellman] "Diffie–Hellman key exchange" (trackId: publickey)
+  Tagline: Agree on a secret key over a public channel
+  Output: Shared secret
+  Fields (4): p [Prime modulus p] (type: number, default: "353"); g [Generator g] (type: number, default: "3"); a [Alice private exponent a] (type: number, default: "97"); b [Bob private exponent b] (type: number, default: "233")
+* TOOL [ecc-point] "Elliptic curve cryptography" (trackId: publickey)
+  Tagline: Weierstrass curve y² ≡ x³ + ax + b (mod p), point addition and scalar k·P
+  Output: Scalar Multiplication Result
+  Fields (6): a [Curve parameter a] (type: number, default: "2"); b [Curve parameter b] (type: number, default: "3"); p [Prime p] (type: number, default: "97"); px [Base point P.x] (type: number, default: "3"); py [Base point P.y] (type: number, default: "6"); k [Private scalar k] (type: number, default: "7")
+* TOOL [tls-handshake] "TLS 1.3 Handshake trace" (trackId: publickey)
+  Tagline: Step-by-step packet inspection: ClientHello, KeyShare, CertVerify, Finished (1-RTT)
+  Output: Handshake Transcript
+  Fields (1): cipher [Cipher Suite] (type: select, default: "TLS_AES_256_GCM_SHA384")
+* TOOL [euclid-tableau] "Extended Euclid Bézout tableau" (trackId: numbertheory)
+  Tagline: Find gcd(a, b) and integer coefficients satisfying a·s + b·t = gcd(a, b)
+  Output: Bézout Tableau & Solution
+  Fields (2): a [First number a] (type: number, default: "240"); b [Second number b] (type: number, default: "46")
+* TOOL [miller-rabin] "Miller–Rabin primality test" (trackId: numbertheory)
+  Tagline: Step-by-step witness evaluation testing n - 1 = 2^s · d
+  Output: Primality Decision
+  Fields (2): n [Candidate integer n] (type: number, default: "561"); a [Witness base a] (type: number, default: "2")
+* TOOL [crt-multi] "Chinese Remainder (CRT) solver" (trackId: numbertheory)
+  Tagline: Solve systems of simultaneous congruences x ≡ a_i (mod m_i)
+  Output: CRT Solution
+  Fields (1): congruences [System of Congruences] (type: text, default: "2 mod 3, 3 mod 5, 2 mod 7")
+* TOOL [baby-step-giant-step] "Discrete log (Baby-step Giant-step)" (trackId: numbertheory)
+  Tagline: Solve g^x ≡ h (mod p) in O(√p) time using Shanks' algorithm
+  Output: Discrete Logarithm
+  Fields (3): g [Base generator g] (type: number, default: "3"); h [Target value h] (type: number, default: "13"); p [Prime modulus p] (type: number, default: "17")
+* TOOL [gcd] "Euclidean algorithm (GCD)" (trackId: numbertheory)
+  Tagline: Trace the greatest common divisor step by step
+  Output: GCD Trace
+  Fields (2): a [Number a] (type: number, default: "1071"); b [Number b] (type: number, default: "462")
+* TOOL [extended-euclid] "Extended Euclidean algorithm" (trackId: numbertheory)
+  Tagline: Find Bézout coefficients: ax + by = gcd(a,b)
+  Output: Coefficients
+  Fields (2): a [a] (type: number, default: "240"); b [b] (type: number, default: "46")
+* TOOL [mod-inverse] "Modular multiplicative inverse" (trackId: numbertheory)
+  Tagline: Solve a·x ≡ 1 (mod m)
+  Output: Modular Inverse
+  Fields (2): a [Number a] (type: number, default: "17"); m [Modulus m] (type: number, default: "3120")
+* TOOL [mod-pow] "Modular exponentiation" (trackId: numbertheory)
+  Tagline: Fast power-mod algorithm: b^e mod m
+  Output: Result
+  Fields (3): b [Base b] (type: number, default: "7"); e [Exponent e] (type: number, default: "256"); m [Modulus m] (type: number, default: "13")
+* TOOL [prime-test] "Primality test" (trackId: numbertheory)
+  Tagline: Check if n is prime and find its smallest factor
+  Output: Primality
+  Fields (1): n [Number] (type: text, default: "104729")
+* TOOL [factorize] "Prime factorization" (trackId: numbertheory)
+  Tagline: Decompose n into its prime factors
+  Output: Factors
+  Fields (1): n [Number] (type: text, default: "3233")
+* TOOL [totient] "Euler's totient φ(n)" (trackId: numbertheory)
+  Tagline: Count integers coprime to n
+  Output: Result
+  Fields (1): n [Number] (type: text, default: "3233")
+* TOOL [sieve] "Sieve of Eratosthenes" (trackId: numbertheory)
+  Tagline: All primes up to a given limit
+  Output: Primes
+  Fields (1): limit [Limit] (type: number, default: "200")
+* TOOL [primitive-roots] "Primitive roots" (trackId: numbertheory)
+  Tagline: Generators of the multiplicative group ℤ/pℤ*
+  Output: Roots mod p
+  Fields (1): p [Prime p] (type: number, default: "23")
+* TOOL [padding-oracle] "Padding oracle attack (CBC)" (trackId: security)
+  Tagline: Decrypt ciphertext byte-by-byte via PKCS#7 error leakage (Vaudenay 2002)
+  Output: Attack Results
+  Fields (1): secret [Target Word (1-8 chars)] (type: text, default: "SECRET")
+* TOOL [timing-attack] "Side-channel timing attack" (trackId: security)
+  Tagline: Compare early-exit string comparisons vs constant-time execution
+  Output: Timing Comparison
+  Fields (2): candidate [Attacker Guess] (type: text, default: "SECXXXXX"); secret [Actual Secret Password] (type: text, default: "SECURITY")
+* TOOL [zkp-schnorr] "Zero-Knowledge Proof (Schnorr)" (trackId: security)
+  Tagline: Peggy proves knowledge of x such that y = g^x (mod p) without revealing x
+  Output: ZKP Verification
+  Fields (2): x [Peggy's Secret x] (type: number, default: "42"); challenge [Victor's Challenge c] (type: number, default: "7")
+* TOOL [password-entropy] "Password entropy & crack time" (trackId: security)
+  Tagline: Calculate bits of entropy and offline brute-force duration
+  Output: Entropy Analysis
+  Fields (1): password [Password] (type: text, default: "Tr0ub4dor&3")
+* TOOL [bifid] "Bifid & Polybius cipher" (trackId: classical)
+  Tagline: Fractionation and transposition across a 5×5 Polybius grid (Delastelle 1901)
+  Output: Ciphertext / Plaintext
+  Fields (4): text [Text] (type: text, default: "DEFEND THE EAST WALL"); key [5×5 Key Alphabet (25 letters)] (type: text, default: "ABCDEFGHIKLMNOPQRSTUVWXYZ"); period [Fractionation Period] (type: number, default: "5"); mode [Direction] (type: select, default: "encrypt")
+* TOOL [scytale] "Spartan Scytale transposition" (trackId: classical)
+  Tagline: Ancient cylinder wrapping transposition (5th century BCE)
+  Output: Parchment Strip
+  Fields (3): text [Secret Message] (type: text, default: "SEND REINFORCEMENTS TO SPARTA"); diameter [Rod Diameter (Rows)] (type: number, default: "4"); mode [Direction] (type: select, default: "encrypt")
+* TOOL [des-feistel] "DES Feistel round function" (trackId: symmetric)
+  Tagline: 32-bit expansion E, 8 S-Boxes (6→4 bits), and P-permutation
+  Output: Round Output
+  Fields (2): right [32-bit Right Half (Hex)] (type: text, default: "87878787"); subkey [48-bit Round Subkey (Hex)] (type: text, default: "1b02effc7072")
+* TOOL [chacha20] "ChaCha20 quarter-round (ARX)" (trackId: symmetric)
+  Tagline: Addition modulo 2³², Rotation, and XOR without cache-timing leaks
+  Output: Updated Words
+  Fields (4): a [Word a (Hex / Int)] (type: number, default: "286331153"); b [Word b (Hex / Int)] (type: number, default: "16909060"); c [Word c (Hex / Int)] (type: number, default: "2609737539"); d [Word d (Hex / Int)] (type: number, default: "19088743")
+* TOOL [modular-group] "Modular group & ring explorer" (trackId: numbertheory)
+  Tagline: Analyze ℤ_n elements, units in ℤ_n*, zero divisors, and inverses
+  Output: Group Structure Analysis
+  Fields (1): n [Modulus n (2–50)] (type: number, default: "12")
+* TOOL [quadratic-residues] "Quadratic residues & Legendre symbol" (trackId: numbertheory)
+  Tagline: Euler's criterion a^((p-1)/2) mod p and square roots modulo p
+  Output: Legendre Symbol & Roots
+  Fields (2): a [Residue a] (type: number, default: "5"); p [Prime p] (type: number, default: "19")
+* TOOL [replay-attack] "Replay attack & nonce defense" (trackId: security)
+  Tagline: Simulate wiretap replay attacks and freshness defenses (Nonces vs Timestamps)
+  Output: Bank Server Decision
+  Fields (4): amount [Transfer Amount ($)] (type: number, default: "500"); nonce [Include Cryptographic Nonce] (type: select, default: "yes"); timestamp [Include Request Timestamp] (type: select, default: "yes"); attack [Eve Executes Replay] (type: select, default: "yes")
+* TOOL [pqc-lwe-simulator] "Learning with Errors (LWE) Lab" (trackId: postquantum)
+  Tagline: Simulate LWE & Module-LWE encryption, Gaussian noise perturbation, and threshold decryption
+  Output: LWE Decryption Result
+  Fields (4): dim [Dimension (n)] (type: number, default: "3"); modulus [Modulus (q)] (type: number, default: "97"); bit [Message Bit to Encrypt (m)] (type: select, default: "1"); noise [Max Noise Bound (±e)] (type: number, default: "2")
+* TOOL [pqc-kyber-simulator] "ML-KEM / Kyber Key Encapsulation" (trackId: postquantum)
+  Tagline: Step-by-step FIPS 203 Module-Lattice Key Encapsulation (ML-KEM-512/768/1024)
+  Output: ML-KEM Shared Secret Output
+  Fields (2): variant [Security Level] (type: select, default: "768"); msg [Entropy Seed Message] (type: text, default: "SecretPayloadForTLS1.3")
+* TOOL [pqc-lamport-merkle] "Lamport OTS & Merkle Signatures" (trackId: postquantum)
+  Tagline: Interactive One-Time Signatures (OTS) and binary Merkle authentication paths
+  Output: Lamport & Merkle Signature
+  Fields (2): msg [Message String] (type: text, default: "POST-QUANTUM"); bits [Digest Bit Length] (type: number, default: "16")
+* TOOL [pqc-threat-calculator] "Quantum Threat & Resource Estimator" (trackId: postquantum)
+  Tagline: Evaluate Shor's & Grover's impact, required logical/physical qubits, and CNSA 2.0 deadlines
+  Output: Quantum Threat Evaluation
+  Fields (1): algo [Cryptographic Algorithm] (type: select, default: "rsa-2048")
+* TOOL [pqc-mceliece] "Classic McEliece Code-Based Crypto" (trackId: postquantum)
+  Tagline: Simulate Robert McEliece's 1978 Goppa code cryptosystem and syndrome decoding
+  Output: Code-Based Decoding Result
+  Fields (1): bits [4-Bit Message Vector] (type: text, default: "1011")
+* TOOL [simplified-aes] "Simplified AES (Stallings Appendix D)" (trackId: postquantum)
+  Tagline: 16-bit educational AES with NibbleSub over GF(2⁴), ShiftRows, MixColumns, and Key Expansion
+  Output: S-AES Output (Hex)
+  Fields (3): input [Plaintext / Ciphertext (4 Hex Digits)] (type: text, default: "6F6B"); key [Master Key (4 Hex Digits)] (type: text, default: "A73B"); mode [Operation] (type: select, default: "enc")
+* TOOL [chinese-remainder] "Chinese Remainder Theorem Solver" (trackId: numbertheory)
+  Tagline: Solve systems of linear congruences with coprime moduli step-by-step
+  Output: Unique Residue Solution
+  Fields (1): congruences [System of Congruences (a mod m)] (type: text, default: "2 mod 3, 3 mod 5, 2 mod 7")
+* TOOL [fast-mod-exp] "Fast Modular Exponentiation (Repeated Squaring)" (trackId: numbertheory)
+  Tagline: Compute b^e mod m in O(log e) time with binary expansion and step table
+  Output: Calculated Power mod m
+  Fields (3): base [Base (b)] (type: text, default: "7"); exp [Exponent (e)] (type: text, default: "560"); mod [Modulus (m)] (type: text, default: "561")
+* TOOL [format-inspector] "Universal Format & Entropy Inspector" (trackId: encoding)
+  Tagline: Instantly detect Hex, Base64, Binary, Decimal, Hashes, and calculate Shannon entropy
+  Output: Detection & Entropy Summary
+  Fields (1): input [Ciphertext, Hash, or Encoded String] (type: textarea, default: "48656c6c6f20576f726c6421")
+* TOOL [shamir-secret-sharing] "Shamir's Secret Sharing (Threshold Cryptosystem)" (trackId: security)
+  Tagline: Adi Shamir (k, n) threshold polynomial secret sharing over GF(257) with Lagrange interpolation
+  Output: Reconstructed Secret & Lagrange Math
+  Fields (3): secret [Secret Value S (0–255)] (type: number, default: "42"); threshold [Threshold (k)] (type: number, default: "3"); total [Total Shares (n)] (type: number, default: "5")
+* TOOL [merkle-tree] "Merkle Tree & Blockchain SPV Verifier" (trackId: hashing)
+  Tagline: Ralph Merkle binary hash tree with O(log₂ N) SPV audit proofs
+  Output: Merkle Root & Proof Path
+  Fields (2): leaves [Transactions / Leaves (comma or newline separated)] (type: textarea, default: "Tx 0: Alice -> Bob (5 BTC)
+Tx 1: Bob -> Carol (2.5 BTC)
+Tx 2: Dave -> Eve (1.1 BTC)
+Tx 3: Satoshi -> Hal (50 BTC)"); verifyLeafIndex [Target Leaf Index to Verify (0-based)] (type: number, default: "0")
+* TOOL [tls-handshake] "TLS 1.3 Handshake & HKDF Key Schedule" (trackId: publickey)
+  Tagline: Inspect RFC 8446 1-RTT handshake, HKDF key derivation, and AEAD tampering
+  Output: TLS 1.3 Handshake Summary
+  Fields (1): cipher [Cipher Suite] (type: text, default: "TLS_AES_128_GCM_SHA256")
+* TOOL [zkp-schnorr] "Schnorr Zero-Knowledge Proof (ZKP)" (trackId: security)
+  Tagline: 3-move identification protocol (Commitment -> Challenge -> Response) over cyclic groups
+  Output: Verification Equation & Proof Status
+  Fields (2): secretX [Prover Secret Key (x)] (type: number, default: "5"); challengeE [Verifier Challenge (c)] (type: number, default: "4")
+* TOOL [padding-oracle] "CBC Padding Oracle Attack Simulator" (trackId: security)
+  Tagline: Serge Vaudenay's attack decrypting CBC ciphertexts byte-by-byte via padding error leakage
+  Output: Decrypted Plaintext Byte & Oracle Queries
+  Fields (1): secretWord [Secret Word in Target Block (Max 8 Chars)] (type: text, default: "CRYPTO")
